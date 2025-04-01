@@ -1,0 +1,22 @@
+# Node modules
+node_modules/
+server/node_modules/
+client/node_modules/
+admin-client/node_modules/
+
+# Production
+build/
+dist/
+server/dist/
+client/dist/
+admin-client/dist/
+
+# Logs and databases
+*.log
+logs/
+.env
+.env.local
+
+# IDE files
+.idea/
+.vscode/
