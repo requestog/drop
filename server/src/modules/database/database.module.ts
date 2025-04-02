@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { DatabaseService } from './database.service';
+import { DatabaseService } from './services/database.service';
 import { ConfigModule } from '@nestjs/config';
 import * as process from 'node:process';
 
