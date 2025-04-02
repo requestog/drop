@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as process from 'node:process';
 import { DatabaseModule } from './modules/database/database.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   controllers: [],
@@ -11,6 +12,7 @@ import { DatabaseModule } from './modules/database/database.module';
       envFilePath: `.${process.env.NODE_ENV}.env`,
     }),
     DatabaseModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
