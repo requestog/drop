@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User } from '../models/user.model';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { Role } from '../enums/role.enum';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -12,12 +13,37 @@ export class UsersService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    const newUser = new this.userModel({
-      ...createUserDto,
-      roles: [Role.User],
-      email: false,
-    });
-    const savedUser = await newUser.save();
-    return savedUser;
+    try {
+      const hashedPassword: string = await this.hashPassword(
+        createUserDto.password,
+      );
+      const nickName: string = await this.generateUniqueNickName();
+      const newUser: User = new this.userModel({
+        ...createUserDto,
+        passwordHash: hashedPassword,
+        roles: [Role.User],
+        emailVerified: false,
+        nickName: nickName,
+      });
+      const savedUser: User = await newUser.save();
+      const { passwordHash, ...result } = savedUser.toObject();
+      return result;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 12);
+  }
+
+  private async generateUniqueNickName(): Promise<string> {
+    const uuid = crypto.randomUUID().replace(/-/g, '').slice(0, 12);
+    return `user_${uuid}`;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    const data: User[] = await this.userModel.find().select('-passwordHash');
+    return data;
   }
 }

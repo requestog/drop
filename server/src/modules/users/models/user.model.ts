@@ -10,7 +10,6 @@ export class User extends Document implements IUser {
     required: true,
     unique: true,
     trim: true,
-    match: [/^\S+@\S+\.\S+$/, 'Incorrect email'],
   })
   email: string;
 
