@@ -16,6 +16,8 @@ admin-client/dist/
 logs/
 .env
 .env.local
+server/.development.env
+server/.production.env
 
 # IDE files
 .idea/
