@@ -43,7 +43,12 @@ export class UsersService {
   }
 
   async getAllUsers(): Promise<User[]> {
-    const data: User[] = await this.userModel.find().select('-passwordHash');
-    return data;
+    return await this.userModel.find().select('-passwordHash');
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return await this.userModel
+      .findOne({ where: email })
+      .select('-passwordHash');
   }
 }
