@@ -36,7 +36,7 @@ export class UsersService {
   }
 
   private async generateUniqueNickName(): Promise<string> {
-    const uuid = crypto.randomUUID().replace(/-/g, '').slice(0, 12);
+    const uuid: string = crypto.randomUUID().replace(/-/g, '').slice(0, 12);
     return `user_${uuid}`;
   }
 
@@ -44,7 +44,9 @@ export class UsersService {
     return this.userModel.find().select('-passwordHash');
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    return this.userModel.findOne({ where: email }).select('-passwordHash');
+  async getUserByEmail(email: string): Promise<User | null> {
+    const user = await this.userModel.findOne({ email }).lean().exec();
+    console.log(user);
+    return user;
   }
 }
