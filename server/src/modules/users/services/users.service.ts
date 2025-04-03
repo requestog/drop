@@ -12,14 +12,12 @@ export class UsersService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
+  async createUser(userDto: CreateUserDto): Promise<User> {
     try {
-      const hashedPassword: string = await this.hashPassword(
-        createUserDto.password,
-      );
+      const hashedPassword: string = await this.hashPassword(userDto.password);
       const nickName: string = await this.generateUniqueNickName();
       const newUser: User = new this.userModel({
-        ...createUserDto,
+        ...userDto,
         passwordHash: hashedPassword,
         roles: [Role.User],
         emailVerified: false,
