@@ -8,6 +8,7 @@ async function start(): Promise<void> {
   const app: NestExpressApplication =
     await NestFactory.create<NestExpressApplication>(AppModule);
   app.setGlobalPrefix('api');
+  app.set('trust proxy', 1);
   await app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 }
 

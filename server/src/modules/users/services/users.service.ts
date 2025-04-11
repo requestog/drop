@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User } from '../models/user.model';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { Role } from '../enums/role.enum';
@@ -46,6 +46,12 @@ export class UsersService {
 
   async getUserByEmail(email: string): Promise<User | null> {
     const user = await this.userModel.findOne({ email }).lean().exec();
+    console.log(user);
+    return user;
+  }
+
+  async getUserById(id_: Types.ObjectId): Promise<User | null> {
+    const user = await this.userModel.findOne({ id_ }).lean().exec();
     console.log(user);
     return user;
   }

@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
   providers: [],
   imports: [
     ConfigModule.forRoot({
+      isGlobal: true,
       envFilePath: `.${process.env.NODE_ENV}.env`,
     }),
     DatabaseModule,
