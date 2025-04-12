@@ -8,10 +8,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { TokenService } from './services/token.service';
+import { CookieService } from './services/cookie.service';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, TokenService],
+  providers: [AuthService, TokenService, CookieService],
   imports: [
     MongooseModule.forFeature([{ name: Session.name, schema: SessionSchema }]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
