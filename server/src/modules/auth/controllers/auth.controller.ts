@@ -58,6 +58,12 @@ export class AuthController {
     return { accessToken: tokens.accessToken };
   }
 
+  @Post('/logout')
+  async logout(@Res({ passthrough: true }) res: Response): Promise<void> {
+    this.cookieService.clearRefreshToken(res);
+    res.status(HttpStatus.OK).send({ message: 'Logged out successfully' });
+  }
+
   @Post('/refresh')
   async refresh(
     @Req() req: Request,
