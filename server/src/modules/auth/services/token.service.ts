@@ -7,8 +7,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
-import { Session } from '../models/sessions.model'; // Импортируем SessionDocument
-import { Model, Types } from 'mongoose'; // Импортируем Types
+import { Session } from '../models/sessions.model';
+import { Model, Types } from 'mongoose';
 import * as ms from 'ms';
 import { StringValue } from 'ms';
 import { User } from '../../users/models/user.model';
@@ -34,14 +34,15 @@ export class TokenService {
       sub: user._id.toString(),
     };
 
-    const accessSecret = this.configService.get<string>('JWT_ACCESS_SECRET');
-    const accessExpiration = this.configService.get<string>(
+    const accessSecret: string | undefined =
+      this.configService.get<string>('JWT_ACCESS_SECRET');
+    const accessExpiration: string | undefined = this.configService.get<string>(
       'JWT_ACCESS_EXPIRATION',
     );
-    const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
-    const refreshExpiration = this.configService.get<string>(
-      'JWT_REFRESH_EXPIRATION',
-    );
+    const refreshSecret: string | undefined =
+      this.configService.get<string>('JWT_REFRESH_SECRET');
+    const refreshExpiration: string | undefined =
+      this.configService.get<string>('JWT_REFRESH_EXPIRATION');
 
     if (
       !accessSecret ||
@@ -132,7 +133,7 @@ export class TokenService {
     userAgent?: string,
     ipAddress?: string,
   ): Promise<AuthTokens> {
-    const tokens = await this.generateTokens(user);
+    const tokens: AuthTokens = await this.generateTokens(user);
     await this.createOrUpdateSession(
       user._id,
       tokens.refreshToken,
@@ -184,7 +185,7 @@ export class TokenService {
     }
   }
 
-  async removeSession(sessionId: Types.ObjectId): Promise<void> {
+  async removeSession(sessionId: Types.ObjectId | string): Promise<void> {
     try {
       await this.sessionModel.deleteOne({ _id: sessionId });
     } catch (error) {

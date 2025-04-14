@@ -13,12 +13,15 @@ import { LoginDto } from '../dto/login.dto';
 import { AuthTokens } from '../interfaces/auth-tokens.interface';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { CookieService } from '../services/cookie.service';
+import { TokenService } from '../services/token.service';
+import { LogoutDto } from '../dto/logout.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly cookieService: CookieService,
+    private readonly refreshService: TokenService,
   ) {}
 
   @Post('/login')
@@ -59,8 +62,14 @@ export class AuthController {
   }
 
   @Post('/logout')
-  async logout(@Res({ passthrough: true }) res: Response): Promise<void> {
+  async logout(
+    @Body() logoutDto: LogoutDto,
+    @Res({ passthrough: true })
+    res: Response,
+  ): Promise<void> {
     this.cookieService.clearRefreshToken(res);
+
+    await this.refreshService.removeSession(logoutDto.sessionId);
     res.status(HttpStatus.OK).send({ message: 'Logged out successfully' });
   }
 
