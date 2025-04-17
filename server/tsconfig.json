@@ -16,6 +16,14 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "assets": [
+      {
+        "include": "src/modules/mail/templates/**/*",
+        "outDir": "dist/modules/mail/templates",
+        "watchAssets": true
+      }
+    ],
+    "watchAssets": true
   }
 }

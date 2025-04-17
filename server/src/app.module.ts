@@ -4,6 +4,7 @@ import * as process from 'node:process';
 import { DatabaseModule } from './modules/database/database.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   controllers: [],
@@ -16,6 +17,7 @@ import { AuthModule } from './modules/auth/auth.module';
     DatabaseModule,
     UsersModule,
     AuthModule,
+    MailModule,
   ],
 })
 export class AppModule {}

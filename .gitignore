@@ -18,6 +18,8 @@ logs/
 .env.local
 server/.development.env
 server/.production.env
+development.env
+production.env
 
 # IDE files
 .idea/

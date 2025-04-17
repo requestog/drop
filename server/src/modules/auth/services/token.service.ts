@@ -1,4 +1,3 @@
-// src/auth/services/token.service.ts
 import {
   Injectable,
   InternalServerErrorException,
@@ -11,10 +10,8 @@ import { Session } from '../models/sessions.model';
 import { Model, Types } from 'mongoose';
 import * as ms from 'ms';
 import { StringValue } from 'ms';
-import { User } from '../../users/models/user.model';
 import { AuthTokens } from '../interfaces/auth-tokens.interface';
-
-export type SafeUser = Omit<User, 'passwordHash'> & { _id: Types.ObjectId };
+import { SafeUser } from '../../users/types/user.types';
 
 @Injectable()
 export class TokenService {
@@ -26,7 +23,7 @@ export class TokenService {
 
   async generateTokens(user: SafeUser): Promise<AuthTokens> {
     const accessPayload = {
-      username: user.email,
+      email: user.email,
       sub: user._id.toString(),
       roles: user.roles,
     };

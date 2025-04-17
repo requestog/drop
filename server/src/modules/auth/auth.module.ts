@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { TokenService } from './services/token.service';
 import { CookieService } from './services/cookie.service';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   controllers: [AuthController],
@@ -17,6 +18,7 @@ import { CookieService } from './services/cookie.service';
     MongooseModule.forFeature([{ name: Session.name, schema: SessionSchema }]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     ConfigModule,
+    MailModule,
 
     JwtModule.registerAsync({
       imports: [ConfigModule],

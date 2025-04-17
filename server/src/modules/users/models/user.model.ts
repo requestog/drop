@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Role } from '../enums/role.enum';
-import { IUser } from './user.interface';
+import { IUser } from '../interfaces/user.interface';
 import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
@@ -39,6 +39,12 @@ export class User extends Document implements IUser {
 
   @Prop({ type: Boolean, default: false })
   emailVerified: boolean;
+
+  @Prop({ type: String, default: undefined })
+  confirmationToken?: string;
+
+  @Prop({ type: Date, default: undefined })
+  confirmationExpires?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

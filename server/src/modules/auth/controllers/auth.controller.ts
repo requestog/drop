@@ -32,7 +32,7 @@ export class AuthController {
   ): Promise<{ accessToken: string }> {
     const userAgent: string | undefined = req.headers['user-agent'];
     const ipAddress: string | undefined = req.ip;
-    const tokens: AuthTokens = await this.authService.registration(
+    const tokens: AuthTokens = await this.authService.login(
       loginDto,
       userAgent,
       ipAddress,

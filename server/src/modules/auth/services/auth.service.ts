@@ -9,16 +9,19 @@ import { UsersService } from '../../users/services/users.service';
 import { User } from '../../users/models/user.model';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from '../dto/login.dto';
-import { TokenService, SafeUser } from './token.service';
+import { TokenService } from './token.service';
 import { AuthTokens } from '../interfaces/auth-tokens.interface';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
-import { Types } from 'mongoose';
+import { MailService } from '../../mail/services/mail.service';
+import { v4 as uuidv4 } from 'uuid';
+import { SafeUser } from '../../users/types/user.types';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UsersService,
     private tokenService: TokenService,
+    private mailService: MailService,
   ) {}
 
   async login(
@@ -46,22 +49,29 @@ export class AuthService {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
 
-    const createdUser: User = await this.userService.createUser(loginDto);
+    const confirmationToken: string = uuidv4();
+    const confirmationExpires = new Date();
+    confirmationExpires.setHours(confirmationExpires.getHours() + 24);
+
+    const createdUser: SafeUser = await this.userService.createUser(
+      loginDto,
+      confirmationToken,
+      confirmationExpires,
+    );
+
     if (!createdUser || !createdUser._id) {
       throw new InternalServerErrorException(
         'Failed to create user or user missing ID.',
       );
     }
 
-    const { passwordHash, ...userWithoutPassword } = Object(createdUser);
-
-    const safeUser: SafeUser = {
-      ...userWithoutPassword,
-      _id: createdUser._id,
-    };
+    await this.mailService.sendUserConfirmation(
+      loginDto.email,
+      confirmationToken,
+    );
 
     return this.tokenService.issueTokensAndSaveSession(
-      safeUser,
+      createdUser,
       userAgent,
       ipAddress,
     );
@@ -76,8 +86,11 @@ export class AuthService {
       const { session, payload } = await this.tokenService.validateRefreshToken(
         refreshTokenDto.refreshToken,
       );
-      const userId: Types.ObjectId = new Types.ObjectId(payload._id);
-      const user: User | null = await this.userService.getUserById(userId);
+
+      const userEmail: string = payload.email;
+      const user: User | null =
+        await this.userService.getUserByEmail(userEmail);
+
       if (!user) {
         await this.tokenService.removeSession(session.id);
         throw new UnauthorizedException(
@@ -85,11 +98,7 @@ export class AuthService {
         );
       }
       await this.tokenService.removeSession(session.id);
-      const { passwordHash, ...userWithoutPassword } = Object(user.toObject());
-      const safeUser: SafeUser = {
-        ...userWithoutPassword,
-        _id: user._id,
-      };
+      const safeUser: SafeUser = this.userService.toSafeUser(user);
       return this.tokenService.issueTokensAndSaveSession(
         safeUser,
         userAgent,
@@ -122,12 +131,6 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { passwordHash, ...userWithoutPassword } = Object(user);
-    const safeUser: SafeUser = {
-      ...userWithoutPassword,
-      _id: user._id,
-    };
-
-    return safeUser;
+    return this.userService.toSafeUser(user);
   }
 }
