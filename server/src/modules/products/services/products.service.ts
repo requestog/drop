@@ -21,4 +21,28 @@ export class ProductsService {
       return Promise.reject(error);
     }
   }
+
+  async getAll(): Promise<Product[]> {
+    try {
+      return this.productModel.find({});
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async getProductByID(id: string): Promise<Product | null> {
+    try {
+      return this.productModel.findById(id);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async deleteByID(id: string): Promise<void> {
+    try {
+      await this.productModel.findByIdAndDelete(id).exec();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
 }

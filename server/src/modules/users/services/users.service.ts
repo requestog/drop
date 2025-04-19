@@ -49,10 +49,11 @@ export class UsersService {
   }
 
   async getAllUsers(): Promise<User[]> {
-    return this.userModel
+    const data = await this.userModel
       .find()
       .select('-passwordHash -confirmationToken -confirmationExpires')
       .exec();
+    return data;
   }
 
   async getUserByEmail(email: string): Promise<User | null> {

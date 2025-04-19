@@ -5,6 +5,7 @@ import { DatabaseModule } from './modules/database/database.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MailModule } from './modules/mail/mail.module';
+import { ProductsModule } from './modules/products/products.module';
 
 @Module({
   controllers: [],
@@ -18,6 +19,7 @@ import { MailModule } from './modules/mail/mail.module';
     UsersModule,
     AuthModule,
     MailModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}
