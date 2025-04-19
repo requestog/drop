@@ -9,5 +9,7 @@ export interface IProduct extends Document {
   categories: string[];
   images?: string[];
   isActive: boolean;
+  averageRating?: number;
+  reviewCount?: number;
   discount?: number;
 }

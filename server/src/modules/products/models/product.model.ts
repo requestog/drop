@@ -28,6 +28,12 @@ export class Product extends Document implements IProduct {
   @Prop({ default: true })
   isActive: boolean;
 
+  @Prop({ type: Number, default: 0, minimum: 0, maximum: 5 })
+  averageRating?: number;
+
+  @Prop({ type: Number, default: 0, minimum: 0 })
+  reviewCount?: number;
+
   @Prop({ default: 0 })
   discount?: number;
 }
