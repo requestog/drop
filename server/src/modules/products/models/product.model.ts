@@ -39,3 +39,18 @@ export class Product extends Document implements IProduct {
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
+
+ProductSchema.index(
+  {
+    name: 'text',
+    description: 'text',
+  },
+  {
+    weights: {
+      name: 3,
+      description: 1,
+    },
+    default_language: 'russian',
+    name: 'product_text_index',
+  },
+);

@@ -2,6 +2,8 @@ import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ProductsService } from '../services/products.service';
 import { ProductCreateDto } from '../dto/product-create.dto';
 import { Product } from '../models/product.model';
+import { SearchProductsDto } from '../dto/search-products.dto';
+import PaginatedProducts from '../interfaces/paginated-products.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -12,6 +14,14 @@ export class ProductsController {
     @Body() createProductDto: ProductCreateDto,
   ): Promise<Product> {
     return await this.productsService.createProduct(createProductDto);
+  }
+
+  @Post('search')
+  async searchProducts(
+    @Body() dto: SearchProductsDto,
+  ): Promise<PaginatedProducts> {
+    console.log(dto);
+    return this.productsService.search(dto);
   }
 
   @Get('/getAll')
