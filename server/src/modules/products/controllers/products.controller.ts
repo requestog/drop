@@ -1,19 +1,33 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UploadedFile,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ProductsService } from '../services/products.service';
 import { ProductCreateDto } from '../dto/product-create.dto';
 import { Product } from '../models/product.model';
 import { SearchProductsDto } from '../dto/search-products.dto';
 import PaginatedProducts from '../interfaces/paginated-products.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post('/create')
+  @UseInterceptors(FilesInterceptor('images'))
   async createProduct(
-    @Body() createProductDto: ProductCreateDto,
+    @Body() body: { data: string },
+    @UploadedFiles() images: Express.Multer.File[],
   ): Promise<Product> {
-    return await this.productsService.createProduct(createProductDto);
+    const createProductDto = JSON.parse(body.data) as ProductCreateDto;
+    return this.productsService.createProduct(createProductDto, images);
   }
 
   @Post('search')

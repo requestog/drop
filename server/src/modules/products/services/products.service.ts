@@ -5,22 +5,42 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { SearchProductsDto } from '../dto/search-products.dto';
 import PaginatedProducts from '../interfaces/paginated-products.dto';
+import { FilesService } from '../../files/files.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
+    private readonly fileService: FilesService,
   ) {}
 
-  async createProduct(createProductDto: ProductCreateDto): Promise<Product> {
+  async createProduct(
+    createProductDto: ProductCreateDto,
+    images: Express.Multer.File[],
+  ): Promise<Product> {
     try {
-      const newProduct: Product = new this.productModel({
+      const imageUrls: (string | undefined)[] = images?.length
+        ? await Promise.all(
+            images.map(
+              (image: Express.Multer.File): Promise<string | undefined> =>
+                this.fileService.createFile(image),
+            ),
+          )
+        : [];
+
+      const newProduct = new this.productModel({
         ...createProductDto,
+        images: imageUrls.filter(
+          (url: string | undefined): url is string => url !== undefined,
+        ) as string[],
       });
-      const savedProduct: Product = await newProduct.save();
-      return savedProduct;
+
+      return await newProduct.save();
     } catch (error) {
-      return Promise.reject(error);
+      if (error instanceof Error) {
+        throw new Error(`Failed to create product: ${error.message}`);
+      }
+      throw new Error('Failed to create product');
     }
   }
 
