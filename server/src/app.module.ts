@@ -8,6 +8,7 @@ import { MailModule } from './modules/mail/mail.module';
 import { ProductsModule } from './modules/products/products.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'node:path';
+import { ReviewModule } from './modules/review/review.module';
 
 @Module({
   controllers: [],
@@ -25,6 +26,7 @@ import * as path from 'node:path';
     AuthModule,
     MailModule,
     ProductsModule,
+    ReviewModule,
   ],
 })
 export class AppModule {}

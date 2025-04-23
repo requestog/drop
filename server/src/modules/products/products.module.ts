@@ -12,5 +12,9 @@ import { FilesModule } from '../files/files.module';
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     FilesModule,
   ],
+  exports: [
+    ProductsService,
+    MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
+  ],
 })
 export class ProductsModule {}
