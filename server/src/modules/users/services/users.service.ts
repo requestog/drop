@@ -77,7 +77,7 @@ export class UsersService {
   }
 
   public toSafeUser(user: User): SafeUser {
-    const userObject = user.toObject();
+    const userObject = Object(user);
 
     const {
       passwordHash,
