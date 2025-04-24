@@ -3,13 +3,17 @@ import { CreateReviewDto } from '../dto/create-review.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Review } from '../models/review.model';
+import { ParentProduct } from '../../parent-product/models/parent-product.model';
 import { Product } from '../../products/models/product.model';
 
 @Injectable()
 export class ReviewService {
   constructor(
     @InjectModel('Review') private readonly reviewModel: Model<Review>,
-    @InjectModel(Product.name) private productModel: Model<Product>,
+    @InjectModel(ParentProduct.name)
+    private parentProductModel: Model<ParentProduct>,
+    @InjectModel(Product.name)
+    private productModel: Model<Product>,
   ) {}
 
   async createReview(productId: string, createReviewDto: CreateReviewDto) {
@@ -24,11 +28,16 @@ export class ReviewService {
   }
 
   private async updateProductRating(productId: string) {
+    const product = await this.productModel.findById(productId);
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
     const reviews = await this.reviewModel.find({ product: productId });
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
     const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
 
-    await this.productModel.findByIdAndUpdate(productId, {
+    await this.parentProductModel.findByIdAndUpdate(product.parentProductId, {
       averageRating,
       reviewCount: reviews.length,
     });

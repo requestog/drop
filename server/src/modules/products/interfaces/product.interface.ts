@@ -1,4 +1,5 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { Brand } from '../../brands/models/brand.model';
 
 export interface IProduct extends Document {
   name: string;
@@ -9,8 +10,8 @@ export interface IProduct extends Document {
   categories: string[];
   images?: string[];
   isActive: boolean;
-  averageRating?: number;
-  reviewCount?: number;
+  // averageRating?: number;
+  // reviewCount?: number;
   discount?: number;
-  brand: string;
+  brandId: Brand;
 }

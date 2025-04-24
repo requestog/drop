@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IProduct } from '../interfaces/product.interface';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { Brand } from '../../brands/models/brand.model';
+import { ParentProduct } from '../../parent-product/models/parent-product.model';
 
 @Schema({ timestamps: true })
 export class Product extends Document implements IProduct {
@@ -13,12 +15,6 @@ export class Product extends Document implements IProduct {
   @Prop({ required: true })
   price: number;
 
-  // @Prop({ type: [String], required: true })
-  // sizes: string[];
-
-  // @Prop({ type: [String], required: true })
-  // colors: string[];
-
   @Prop({ type: [String], required: true })
   categories: string[];
 
@@ -28,17 +24,14 @@ export class Product extends Document implements IProduct {
   @Prop({ default: true })
   isActive: boolean;
 
-  @Prop({ type: Number, default: 0, minimum: 0, maximum: 5 })
-  averageRating?: number;
-
-  @Prop({ type: Number, default: 0, minimum: 0 })
-  reviewCount?: number;
-
   @Prop({ default: 0 })
   discount?: number;
 
-  @Prop({ type: String, required: true })
-  brand: string;
+  @Prop({ type: Types.ObjectId, ref: 'Brand', required: true })
+  brandId: Brand;
+
+  @Prop({ type: Types.ObjectId, ref: 'ParentProduct', required: true })
+  parentProductId: ParentProduct;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

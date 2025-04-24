@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Review, ReviewSchema } from './models/review.model';
 import { ProductsModule } from '../products/products.module';
 import { AuthModule } from '../auth/auth.module';
+import { ParentProductModule } from '../parent-product/parent-product.module';
 
 @Module({
   controllers: [ReviewController],
@@ -12,6 +13,7 @@ import { AuthModule } from '../auth/auth.module';
   imports: [
     MongooseModule.forFeature([{ name: Review.name, schema: ReviewSchema }]),
     ProductsModule,
+    ParentProductModule,
     AuthModule,
   ],
 })
