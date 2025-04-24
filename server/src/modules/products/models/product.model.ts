@@ -13,11 +13,11 @@ export class Product extends Document implements IProduct {
   @Prop({ required: true })
   price: number;
 
-  @Prop({ type: [String], required: true })
-  sizes: string[];
+  // @Prop({ type: [String], required: true })
+  // sizes: string[];
 
-  @Prop({ type: [String], required: true })
-  colors: string[];
+  // @Prop({ type: [String], required: true })
+  // colors: string[];
 
   @Prop({ type: [String], required: true })
   categories: string[];
@@ -36,6 +36,9 @@ export class Product extends Document implements IProduct {
 
   @Prop({ default: 0 })
   discount?: number;
+
+  @Prop({ type: String, required: true })
+  brand: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
