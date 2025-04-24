@@ -8,15 +8,15 @@ import {
 } from 'class-validator';
 
 export class CreateReviewDto {
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Пользователь не указан' })
   userId: string;
 
-  @IsInt()
-  @Min(1)
-  @Max(5)
+  @IsInt({ message: 'Рейтинг должен быть целым числом' })
+  @Min(1, { message: 'Минимальный рейтинг - 1' })
+  @Max(5, { message: 'Максимальный рейтинг - 5' })
   rating: number;
 
-  @IsString()
+  @IsString({ message: 'Комментарий должен быть строкой' })
   @IsOptional()
   comment?: string;
 }
