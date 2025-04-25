@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsBoolean,
+  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -9,6 +10,8 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { Brand } from '../../brands/models/brand.model';
+import { ParentProduct } from '../../parent-product/models/parent-product.model';
 
 export class ProductCreateDto {
   @IsNotEmpty({ message: 'Имя не может быть пустым' })
@@ -26,20 +29,9 @@ export class ProductCreateDto {
   @Min(0, { message: 'Цена не может быть отрицательной' })
   price: number;
 
-  @IsNotEmpty({ message: 'Должен быть указан хотя бы один размер' })
-  @IsArray({ message: 'Размеры должны быть массивом' })
-  @IsString({ each: true, message: 'Каждый размер должен быть строкой' })
-  sizes: string[];
-
   @IsNotEmpty({ message: 'Должен быть указан хотя бы один цвет' })
-  @IsArray({ message: 'Цвета должны быть массивом' })
-  @IsString({ each: true, message: 'Каждый цвет должен быть строкой' })
-  colors: string[];
-
-  @IsNotEmpty({ message: 'Должна быть указана хотя бы одна категория' })
-  @IsArray({ message: 'Категории должны быть массивом' })
-  @IsString({ each: true, message: 'Каждая категория должна быть строкой' })
-  categories: string[];
+  @IsString({ each: true, message: 'Цвет должен быть строкой' })
+  color: string;
 
   @IsOptional()
   @IsArray({ message: 'Изображения должны быть массивом' })
@@ -57,4 +49,12 @@ export class ProductCreateDto {
   @Min(0, { message: 'Скидка не может быть меньше 0%' })
   @Max(100, { message: 'Скидка не может быть больше 100%' })
   discount?: number;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  brandId: Brand;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  parentProductId: ParentProduct;
 }

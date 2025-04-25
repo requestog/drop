@@ -15,8 +15,8 @@ export class Product extends Document implements IProduct {
   @Prop({ required: true })
   price: number;
 
-  @Prop({ type: [String], required: true })
-  categories: string[];
+  @Prop({ required: true })
+  color: string;
 
   @Prop({ type: [String] })
   images?: string[];

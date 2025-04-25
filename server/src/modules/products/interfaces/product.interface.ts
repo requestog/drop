@@ -1,17 +1,15 @@
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
 import { Brand } from '../../brands/models/brand.model';
+import { ParentProduct } from '../../parent-product/models/parent-product.model';
 
 export interface IProduct extends Document {
   name: string;
   description: string;
   price: number;
-  // sizes: string[];
-  // colors: string[];
-  categories: string[];
+  color: string;
   images?: string[];
   isActive: boolean;
-  // averageRating?: number;
-  // reviewCount?: number;
   discount?: number;
   brandId: Brand;
+  parentProductId: ParentProduct;
 }
