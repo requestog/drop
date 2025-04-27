@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Product } from '../models/product.model';
 import { ProductCreateDto } from '../dto/product-create.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -54,9 +54,27 @@ export class ProductsService {
 
   async getProductByID(id: string): Promise<Product | null> {
     try {
-      return this.productModel.findById(id);
+      return this.productModel
+        .findById(id)
+        .populate('brandId', 'name img')
+        .populate({
+          path: 'parentProductId',
+          select: 'name averageRating reviewCount -_id',
+          populate: {
+            path: 'reviews',
+            select: 'comment rating -_id',
+            populate: {
+              path: 'user',
+              select: 'nickName -_id',
+            },
+          },
+        })
+        .populate('sizes', 'size count -_id');
     } catch (error) {
-      return Promise.reject(error);
+      throw new InternalServerErrorException(
+        'Ошибка при получении продукта',
+        error,
+      );
     }
   }
 

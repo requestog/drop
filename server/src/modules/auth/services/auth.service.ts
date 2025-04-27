@@ -30,6 +30,7 @@ export class AuthService {
     ipAddress?: string,
   ): Promise<AuthTokens> {
     const user: SafeUser = await this.validateUserCredentials(loginDto);
+    console.log(user);
     return this.tokenService.issueTokensAndSaveSession(
       user,
       userAgent,
@@ -69,9 +70,9 @@ export class AuthService {
       loginDto.email,
       confirmationToken,
     );
-
+    console.log(createdUser['_doc']);
     return this.tokenService.issueTokensAndSaveSession(
-      createdUser,
+      createdUser['_doc'],
       userAgent,
       ipAddress,
     );

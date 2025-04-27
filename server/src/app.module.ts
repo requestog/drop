@@ -9,6 +9,10 @@ import { ProductsModule } from './modules/products/products.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'node:path';
 import { ReviewModule } from './modules/review/review.module';
+import { BrandsModule } from './modules/brands/brands.module';
+import { ParentProductModule } from './modules/parent-product/parent-product.module';
+import { ProductSizesModule } from './modules/product-sizes/product-sizes.module';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   controllers: [],
@@ -27,6 +31,10 @@ import { ReviewModule } from './modules/review/review.module';
     MailModule,
     ProductsModule,
     ReviewModule,
+    BrandsModule,
+    ParentProductModule,
+    ProductSizesModule,
+    CategoryModule,
   ],
 })
 export class AppModule {}

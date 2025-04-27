@@ -3,8 +3,13 @@ import { Document, Types } from 'mongoose';
 import { Product } from '../../products/models/product.model';
 
 @Schema({ timestamps: true })
-export class ProductSize extends Document {
-  @Prop({ type: Types.ObjectId, ref: 'Product', required: true })
+export class ProductSizes extends Document {
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'Product',
+    required: true,
+    index: true,
+  })
   productId: Product;
 
   @Prop({ type: String, required: true })
@@ -14,4 +19,4 @@ export class ProductSize extends Document {
   count: number;
 }
 
-export const ProductSizeSchema = SchemaFactory.createForClass(ProductSize);
+export const ProductSizesSchema = SchemaFactory.createForClass(ProductSizes);

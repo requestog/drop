@@ -3,17 +3,14 @@ import { ReviewService } from '../services/review.service';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
-@Controller('products/:productId/reviews')
+@Controller('products/reviews')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   @Post('/create')
   @UseGuards(JwtAuthGuard)
-  async create(
-    @Param('productId') productId: string,
-    @Body() createReviewDto: CreateReviewDto,
-  ) {
-    await this.reviewService.createReview(productId, createReviewDto);
+  async create(@Body() createReviewDto: CreateReviewDto) {
+    await this.reviewService.createReview(createReviewDto);
   }
 
   @Get()

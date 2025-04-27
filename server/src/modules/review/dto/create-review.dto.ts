@@ -5,11 +5,19 @@ import {
   IsString,
   Min,
   Max,
+  IsMongoId,
 } from 'class-validator';
 
 export class CreateReviewDto {
-  @IsNotEmpty({ message: 'Пользователь не указан' })
-  userId: string;
+  @IsMongoId({ message: 'Неверный ID род. продукта' })
+  parentProductId: string;
+
+  @IsMongoId({ message: 'Неверный ID продукта' })
+  productId: string;
+
+  @IsMongoId({ message: 'Неверный ID пользователя' })
+  @IsNotEmpty()
+  user: string;
 
   @IsInt({ message: 'Рейтинг должен быть целым числом' })
   @Min(1, { message: 'Минимальный рейтинг - 1' })

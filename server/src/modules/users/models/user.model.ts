@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Role } from '../enums/role.enum';
 import { IUser } from '../interfaces/user.interface';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class User extends Document implements IUser {
@@ -16,7 +16,7 @@ export class User extends Document implements IUser {
   @Prop({ type: String, required: true })
   passwordHash: string;
 
-  @Prop({ type: String, unique: true, trim: true })
+  @Prop({ type: String, required: true, unique: true, trim: true })
   nickName: string;
 
   @Prop({ type: String, trim: true })
@@ -48,3 +48,6 @@ export class User extends Document implements IUser {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.index({ email: 1 }, { unique: true });
+UserSchema.index({ nickName: 1 }, { unique: true });

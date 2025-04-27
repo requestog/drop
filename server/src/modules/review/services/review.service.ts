@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Review } from '../models/review.model';
 import { ParentProduct } from '../../parent-product/models/parent-product.model';
 import { Product } from '../../products/models/product.model';
@@ -16,30 +16,37 @@ export class ReviewService {
     private productModel: Model<Product>,
   ) {}
 
-  async createReview(productId: string, createReviewDto: CreateReviewDto) {
-    await this.reviewModel.create({
-      product: productId,
-      user: createReviewDto.userId,
+  async createReview(createReviewDto: CreateReviewDto) {
+    const { _id } = await this.reviewModel.create({
+      parentProductId: new Types.ObjectId(createReviewDto.parentProductId),
+      user: new Types.ObjectId(createReviewDto.user),
+      productId: new Types.ObjectId(createReviewDto.productId),
       rating: createReviewDto.rating,
       comment: createReviewDto?.comment,
     });
 
-    await this.updateProductRating(productId);
+    await this.updateProductRating(createReviewDto.productId, _id);
   }
 
-  private async updateProductRating(productId: string) {
+  private async updateProductRating(productId: string, reviewId) {
     const product = await this.productModel.findById(productId);
     if (!product) {
       throw new Error('Product not found');
     }
-
-    const reviews = await this.reviewModel.find({ product: productId });
+    console.log(Object(productId));
+    const reviews = await this.reviewModel.find({
+      productId: new Types.ObjectId(productId),
+    });
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
     const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+
+    console.log(averageRating);
+    console.log(reviews.length);
 
     await this.parentProductModel.findByIdAndUpdate(product.parentProductId, {
       averageRating,
       reviewCount: reviews.length,
+      $push: { reviews: reviewId },
     });
   }
 

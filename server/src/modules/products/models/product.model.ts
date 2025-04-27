@@ -1,11 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IProduct } from '../interfaces/product.interface';
+
 import { Document, Types } from 'mongoose';
 import { Brand } from '../../brands/models/brand.model';
-import { ParentProduct } from '../../parent-product/models/parent-product.model';
 
 @Schema({ timestamps: true })
-export class Product extends Document implements IProduct {
+export class Product extends Document {
   @Prop({ required: true })
   name: string;
 
@@ -31,7 +30,14 @@ export class Product extends Document implements IProduct {
   brandId: Brand;
 
   @Prop({ type: Types.ObjectId, ref: 'ParentProduct', required: true })
-  parentProductId: ParentProduct;
+  parentProductId: Types.ObjectId;
+
+  @Prop({
+    type: [Types.ObjectId],
+    ref: 'ProductSizes',
+    default: [],
+  })
+  sizes?: Types.ObjectId[];
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
