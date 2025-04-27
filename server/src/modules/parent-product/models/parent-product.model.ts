@@ -18,6 +18,13 @@ export class ParentProduct extends Document {
     default: [],
   })
   reviews: Types.ObjectId[];
+
+  @Prop({
+    type: [Types.ObjectId],
+    ref: 'Product',
+    default: [],
+  })
+  products: Types.ObjectId[];
 }
 
 export const ParentProductSchema = SchemaFactory.createForClass(ParentProduct);

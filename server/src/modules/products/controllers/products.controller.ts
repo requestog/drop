@@ -24,9 +24,9 @@ export class ProductsController {
   async createProduct(
     @Body() body: { data: string },
     @UploadedFiles() images: Express.Multer.File[],
-  ): Promise<Product> {
+  ): Promise<void> {
     const createProductDto = JSON.parse(body.data) as ProductCreateDto;
-    return this.productsService.createProduct(createProductDto, images);
+    await this.productsService.createProduct(createProductDto, images);
   }
 
   @Post('search')

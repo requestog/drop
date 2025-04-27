@@ -6,18 +6,22 @@ import { Model } from 'mongoose';
 import { SearchProductsDto } from '../dto/search-products.dto';
 import PaginatedProducts from '../interfaces/paginated-products.dto';
 import { FilesService } from '../../files/files.service';
+import { ParentProduct } from '../../parent-product/models/parent-product.model';
+import * as path from 'node:path';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
     private readonly fileService: FilesService,
+    @InjectModel(ParentProduct.name)
+    private readonly parentProductModel: Model<ParentProduct>,
   ) {}
 
   async createProduct(
     createProductDto: ProductCreateDto,
     images: Express.Multer.File[],
-  ): Promise<Product> {
+  ): Promise<void> {
     try {
       const imageUrls: (string | undefined)[] = images?.length
         ? await Promise.all(
@@ -34,8 +38,14 @@ export class ProductsService {
           (url: string | undefined): url is string => url !== undefined,
         ) as string[],
       });
+      await newProduct.save();
 
-      return await newProduct.save();
+      await this.parentProductModel.findByIdAndUpdate(
+        createProductDto.parentProductId,
+        {
+          $push: { products: newProduct._id },
+        },
+      );
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to create product: ${error.message}`);
@@ -67,6 +77,13 @@ export class ProductsService {
               path: 'user',
               select: 'nickName -_id',
             },
+          },
+        })
+        .populate({
+          path: 'parentProductId',
+          populate: {
+            path: 'products',
+            select: 'name images',
           },
         })
         .populate('sizes', 'size count -_id');

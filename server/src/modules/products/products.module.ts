@@ -4,6 +4,10 @@ import { ProductsService } from './services/products.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './models/product.model';
 import { FilesModule } from '../files/files.module';
+import {
+  ParentProduct,
+  ParentProductSchema,
+} from '../parent-product/models/parent-product.model';
 
 @Module({
   controllers: [ProductsController],
@@ -11,6 +15,9 @@ import { FilesModule } from '../files/files.module';
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     FilesModule,
+    MongooseModule.forFeature([
+      { name: ParentProduct.name, schema: ParentProductSchema },
+    ]),
   ],
   exports: [
     ProductsService,

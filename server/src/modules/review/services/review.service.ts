@@ -40,9 +40,6 @@ export class ReviewService {
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
     const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
 
-    console.log(averageRating);
-    console.log(reviews.length);
-
     await this.parentProductModel.findByIdAndUpdate(product.parentProductId, {
       averageRating,
       reviewCount: reviews.length,
