@@ -14,6 +14,7 @@ import { Product } from '../models/product.model';
 import { SearchProductsDto } from '../dto/search-products.dto';
 import PaginatedProducts from '../interfaces/paginated-products.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { plainToClass } from 'class-transformer';
 
 @Controller('products')
 export class ProductsController {
@@ -25,7 +26,11 @@ export class ProductsController {
     @Body() body: { data: string },
     @UploadedFiles() images: Express.Multer.File[],
   ): Promise<void> {
-    const createProductDto = JSON.parse(body.data) as ProductCreateDto;
+    const rawData = JSON.parse(body.data);
+    const createProductDto: ProductCreateDto = plainToClass(
+      ProductCreateDto,
+      rawData,
+    );
     await this.productsService.createProduct(createProductDto, images);
   }
 

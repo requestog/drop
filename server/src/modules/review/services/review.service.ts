@@ -5,6 +5,7 @@ import { Model, Types } from 'mongoose';
 import { Review } from '../models/review.model';
 import { ParentProduct } from '../../parent-product/models/parent-product.model';
 import { Product } from '../../products/models/product.model';
+import { FilesService } from '../../files/files.service';
 
 @Injectable()
 export class ReviewService {
@@ -14,18 +15,43 @@ export class ReviewService {
     private parentProductModel: Model<ParentProduct>,
     @InjectModel(Product.name)
     private productModel: Model<Product>,
+    private readonly fileService: FilesService,
   ) {}
 
-  async createReview(createReviewDto: CreateReviewDto) {
-    const { _id } = await this.reviewModel.create({
-      parentProductId: new Types.ObjectId(createReviewDto.parentProductId),
-      user: new Types.ObjectId(createReviewDto.user),
-      productId: new Types.ObjectId(createReviewDto.productId),
-      rating: createReviewDto.rating,
-      comment: createReviewDto?.comment,
-    });
+  async createReview(
+    createReviewDto: CreateReviewDto,
+    images: Express.Multer.File[],
+  ): Promise<void> {
+    try {
+      const imageUrls: (string | undefined)[] = images?.length
+        ? await Promise.all(
+            images.map(
+              (image: Express.Multer.File): Promise<string | undefined> =>
+                this.fileService.createFile(image, 'reviews'),
+            ),
+          )
+        : [];
 
-    await this.updateProductRating(createReviewDto.productId, _id);
+      const reviewModel = new this.reviewModel({
+        parentProductId: new Types.ObjectId(createReviewDto.parentProductId),
+        user: new Types.ObjectId(createReviewDto.user),
+        productId: new Types.ObjectId(createReviewDto.productId),
+        rating: createReviewDto.rating,
+        comment: createReviewDto?.comment,
+        images: imageUrls.filter(
+          (url: string | undefined): url is string => url !== undefined,
+        ) as string[],
+      });
+
+      const { _id } = await reviewModel.save();
+
+      await this.updateProductRating(createReviewDto.productId, _id);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to create product: ${error.message}`);
+      }
+      throw new Error('Failed to create product');
+    }
   }
 
   private async updateProductRating(productId: string, reviewId) {

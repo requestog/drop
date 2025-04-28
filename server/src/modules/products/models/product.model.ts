@@ -38,6 +38,9 @@ export class Product extends Document {
     default: [],
   })
   sizes?: Types.ObjectId[];
+
+  @Prop({ type: [Types.ObjectId], ref: 'Category', default: [] })
+  categories: Types.ObjectId[];
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

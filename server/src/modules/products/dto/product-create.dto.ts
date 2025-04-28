@@ -12,6 +12,8 @@ import {
 } from 'class-validator';
 import { Brand } from '../../brands/models/brand.model';
 import { ParentProduct } from '../../parent-product/models/parent-product.model';
+import { Transform } from 'class-transformer';
+import { Types } from 'mongoose';
 
 export class ProductCreateDto {
   @IsNotEmpty({ message: 'Имя не может быть пустым' })
@@ -57,4 +59,9 @@ export class ProductCreateDto {
   @IsNotEmpty()
   @IsMongoId()
   parentProductId: ParentProduct;
+
+  @IsArray()
+  @IsString({ each: true })
+  @Transform(({ value }) => value.map((id) => new Types.ObjectId(id)))
+  categories?: Types.ObjectId[];
 }

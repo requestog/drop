@@ -6,6 +6,7 @@ import { Review, ReviewSchema } from './models/review.model';
 import { ProductsModule } from '../products/products.module';
 import { AuthModule } from '../auth/auth.module';
 import { ParentProductModule } from '../parent-product/parent-product.module';
+import { FilesModule } from '../files/files.module';
 
 @Module({
   controllers: [ReviewController],
@@ -15,6 +16,7 @@ import { ParentProductModule } from '../parent-product/parent-product.module';
     ProductsModule,
     ParentProductModule,
     AuthModule,
+    FilesModule,
   ],
 })
 export class ReviewModule {}

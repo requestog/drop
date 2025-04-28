@@ -7,7 +7,6 @@ import { SearchProductsDto } from '../dto/search-products.dto';
 import PaginatedProducts from '../interfaces/paginated-products.dto';
 import { FilesService } from '../../files/files.service';
 import { ParentProduct } from '../../parent-product/models/parent-product.model';
-import * as path from 'node:path';
 
 @Injectable()
 export class ProductsService {

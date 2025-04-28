@@ -29,6 +29,9 @@ export class Review extends Document {
 
   @Prop()
   comment?: string;
+
+  @Prop({ type: [String] })
+  images?: string[];
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);
