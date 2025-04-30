@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Patch, Post } from '@nestjs/common';
 import { ProductSizesService } from '../services/product-sizes.service';
 import { ProductSizesCreateDto } from '../dto/product-sizes-create.dto';
 
@@ -9,5 +9,15 @@ export class ProductSizesController {
   @Post('/create')
   async createSize(@Body() dto: ProductSizesCreateDto) {
     await this.productSizesService.createSize(dto);
+  }
+
+  @Delete('/delete/:id')
+  async deleteSize(@Param('id') id: string) {
+    await this.productSizesService.deleteSize(id);
+  }
+
+  @Patch('/update/:id')
+  async updateSize(@Param('id') id: string, @Body() dto) {
+    await this.productSizesService.updateSize(id, dto);
   }
 }
