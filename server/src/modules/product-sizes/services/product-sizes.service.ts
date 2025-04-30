@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ProductSizes } from '../models/product-sizes.model';
 import { Model } from 'mongoose';
 import { Product } from '../../products/models/product.model';
+import { ProductSizesUpdateDto } from '../dto/product-sizes-update.dto';
 
 @Injectable()
 export class ProductSizesService {
@@ -36,7 +37,7 @@ export class ProductSizesService {
     }
   }
 
-  async updateSize(id: string, dto) {
+  async updateSize(id: string, dto: ProductSizesUpdateDto) {
     try {
       const size = await this.productSizesModel.findOne({ _id: id });
       if (!size) throw new NotFoundException('Size not found');

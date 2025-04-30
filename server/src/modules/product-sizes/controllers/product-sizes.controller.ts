@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Param, Patch, Post } from '@nestjs/common';
 import { ProductSizesService } from '../services/product-sizes.service';
 import { ProductSizesCreateDto } from '../dto/product-sizes-create.dto';
+import { ProductSizesUpdateDto } from '../dto/product-sizes-update.dto';
 
 @Controller('product-sizes')
 export class ProductSizesController {
@@ -17,7 +18,10 @@ export class ProductSizesController {
   }
 
   @Patch('/update/:id')
-  async updateSize(@Param('id') id: string, @Body() dto) {
+  async updateSize(
+    @Param('id') id: string,
+    @Body() dto: ProductSizesUpdateDto,
+  ) {
     await this.productSizesService.updateSize(id, dto);
   }
 }
