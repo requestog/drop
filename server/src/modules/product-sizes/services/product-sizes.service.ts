@@ -1,8 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ProductSizesCreateDto } from '../dto/product-sizes-create.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { ProductSizes } from '../models/product-sizes.model';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Product } from '../../products/models/product.model';
 import { ProductSizesUpdateDto } from '../dto/product-sizes-update.dto';
 
@@ -31,9 +36,23 @@ export class ProductSizesService {
 
   async deleteSize(id: string) {
     try {
-      await this.productSizesModel.findByIdAndDelete(id).exec();
-    } catch (error) {
-      throw new NotFoundException(`Failed to delete product: ${error.message}`);
+      const objectId = new Types.ObjectId(id);
+      const productSize = await this.productSizesModel.findById(objectId);
+      if (!productSize)
+        throw new HttpException(
+          `Failed to delete product: ${id}`,
+          HttpStatus.NOT_FOUND,
+        );
+      await this.productSizesModel.findByIdAndDelete(objectId);
+      await this.productModel.updateMany(
+        { categories: objectId },
+        { $pull: { categories: objectId } },
+      );
+    } catch {
+      throw new HttpException(
+        'Error occurred while deleting product size',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
