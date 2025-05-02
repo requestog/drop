@@ -110,6 +110,10 @@ export class ProductsService {
       }
       await this.productModel.findByIdAndDelete(objectId);
       await this.productSizeModel.deleteMany({ productId: objectId });
+      await this.parentProductModel.updateMany(
+        { _id: product.parentProductId },
+        { $pull: { products: objectId } },
+      );
     } catch {
       throw new HttpException('Error deleting product', HttpStatus.BAD_REQUEST);
     }
