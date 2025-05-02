@@ -1,12 +1,18 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { Product } from '../models/product.model';
 import { ProductCreateDto } from '../dto/product-create.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { SearchProductsDto } from '../dto/search-products.dto';
 import PaginatedProducts from '../interfaces/paginated-products.dto';
 import { FilesService } from '../../files/files.service';
 import { ParentProduct } from '../../parent-product/models/parent-product.model';
+import { ProductSizes } from '../../product-sizes/models/product-sizes.model';
 
 @Injectable()
 export class ProductsService {
@@ -15,10 +21,12 @@ export class ProductsService {
     private readonly fileService: FilesService,
     @InjectModel(ParentProduct.name)
     private readonly parentProductModel: Model<ParentProduct>,
+    @InjectModel(ProductSizes.name)
+    private readonly productSizeModel: Model<ProductSizes>,
   ) {}
 
   async createProduct(
-    createProductDto: ProductCreateDto,
+    dto: ProductCreateDto,
     images: Express.Multer.File[],
   ): Promise<void> {
     try {
@@ -32,19 +40,18 @@ export class ProductsService {
         : [];
 
       const newProduct = new this.productModel({
-        ...createProductDto,
+        ...dto,
+        brandId: new Types.ObjectId(dto.brandId),
+        parentProductId: new Types.ObjectId(dto.parentProductId),
         images: imageUrls.filter(
           (url: string | undefined): url is string => url !== undefined,
         ) as string[],
       });
       await newProduct.save();
 
-      await this.parentProductModel.findByIdAndUpdate(
-        createProductDto.parentProductId,
-        {
-          $push: { products: newProduct._id },
-        },
-      );
+      await this.parentProductModel.findByIdAndUpdate(dto.parentProductId, {
+        $push: { products: newProduct._id },
+      });
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to create product: ${error.message}`);
@@ -94,11 +101,17 @@ export class ProductsService {
     }
   }
 
-  async deleteByID(id: string): Promise<void> {
+  async deleteProduct(id: string): Promise<void> {
     try {
-      await this.productModel.findByIdAndDelete(id).exec();
-    } catch (error) {
-      return Promise.reject(error);
+      const objectId = new Types.ObjectId(id);
+      const product = await this.productModel.findById(objectId);
+      if (!product) {
+        throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+      }
+      await this.productModel.findByIdAndDelete(objectId);
+      await this.productSizeModel.deleteMany({ productId: objectId });
+    } catch {
+      throw new HttpException('Error deleting product', HttpStatus.BAD_REQUEST);
     }
   }
 

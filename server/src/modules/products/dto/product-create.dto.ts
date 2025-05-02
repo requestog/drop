@@ -54,11 +54,11 @@ export class ProductCreateDto {
 
   @IsNotEmpty()
   @IsMongoId()
-  brandId: Brand;
+  brandId: string;
 
   @IsNotEmpty()
   @IsMongoId()
-  parentProductId: ParentProduct;
+  parentProductId: string;
 
   @IsArray()
   @IsString({ each: true })

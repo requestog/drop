@@ -23,6 +23,7 @@ export class ProductSizesService {
     try {
       const size = new this.productSizesModel({
         ...dto,
+        productId: new Types.ObjectId(dto.productId),
       });
       await size.save();
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common'; // Добавляем forwardRef
 import { ProductsController } from './controllers/products.controller';
 import { ProductsService } from './services/products.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,6 +8,7 @@ import {
   ParentProduct,
   ParentProductSchema,
 } from '../parent-product/models/parent-product.model';
+import { ProductSizesModule } from '../product-sizes/product-sizes.module';
 
 @Module({
   controllers: [ProductsController],
@@ -15,6 +16,7 @@ import {
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     FilesModule,
+    forwardRef(() => ProductSizesModule), // Оборачиваем в forwardRef
     MongooseModule.forFeature([
       { name: ParentProduct.name, schema: ParentProductSchema },
     ]),
