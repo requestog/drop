@@ -12,7 +12,7 @@ export type FileDestination =
 
 @Injectable()
 export class FilesService {
-  async createFile(
+  async saveFile(
     image: Express.Multer.File,
     destination: FileDestination = 'products',
   ): Promise<string | undefined> {
@@ -33,6 +33,46 @@ export class FilesService {
       throw new HttpException(
         `An error occurred while writing the file, 
           ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async deleteFile(url: string): Promise<void> {
+    try {
+      if (!url) {
+        return;
+      }
+
+      const [destination, fileName] = url.split('/');
+
+      const validDestinations: FileDestination[] = [
+        'products',
+        'reviews',
+        'users',
+        'brands',
+        'banners',
+      ];
+      if (!validDestinations.includes(destination as FileDestination)) {
+        throw new Error('Invalid file destination');
+      }
+
+      const filePath = path.resolve(
+        __dirname,
+        '../..',
+        'static',
+        destination,
+        fileName,
+      );
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      } else {
+        console.warn(`File not found: ${filePath}`);
+      }
+    } catch (error) {
+      throw new HttpException(
+        `An error occurred while deleting the file: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

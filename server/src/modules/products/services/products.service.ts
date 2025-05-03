@@ -13,6 +13,7 @@ import PaginatedProducts from '../interfaces/paginated-products.dto';
 import { FilesService } from '../../files/files.service';
 import { ParentProduct } from '../../parent-product/models/parent-product.model';
 import { ProductSizes } from '../../product-sizes/models/product-sizes.model';
+import { ProductUpdateDto } from '../dto/product-update.dto';
 
 @Injectable()
 export class ProductsService {
@@ -27,14 +28,14 @@ export class ProductsService {
 
   async createProduct(
     dto: ProductCreateDto,
-    images: Express.Multer.File[],
+    images?: Express.Multer.File[],
   ): Promise<void> {
     try {
       const imageUrls: (string | undefined)[] = images?.length
         ? await Promise.all(
             images.map(
               (image: Express.Multer.File): Promise<string | undefined> =>
-                this.fileService.createFile(image),
+                this.fileService.saveFile(image),
             ),
           )
         : [];
@@ -187,5 +188,57 @@ export class ProductsService {
       page: dto.pagination?.page,
       limit: dto.pagination?.limit,
     };
+  }
+
+  async updateProduct(
+    id: string,
+    dto: ProductUpdateDto & { imagesToDelete?: string[] },
+    images?: Express.Multer.File[],
+  ): Promise<void> {
+    try {
+      const product = await this.productModel.findOne({ _id: id });
+      if (!product)
+        throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+
+      let imageUrls: string[] = [];
+      if (images?.length) {
+        imageUrls = (
+          await Promise.all(
+            images.map((image) => this.fileService.saveFile(image)),
+          )
+        ).filter((url): url is string => url !== undefined);
+      }
+
+      let updatedImages: string[] = product.images ? [...product.images] : [];
+      if (dto.imagesToDelete?.length) {
+        await Promise.all(
+          dto.imagesToDelete.map((url) => this.fileService.deleteFile(url)),
+        );
+
+        if (dto.imagesToDelete) {
+          updatedImages = updatedImages.filter(
+            (imgUrl) => !dto.imagesToDelete?.includes(imgUrl),
+          );
+        }
+      }
+
+      const updateData: any = {
+        ...dto,
+        images: [...updatedImages, ...imageUrls],
+      };
+
+      delete updateData.imagesToDelete;
+
+      if (dto.brandId) {
+        updateData.brandId = new Types.ObjectId(dto.brandId);
+      }
+      if (dto.parentProductId) {
+        updateData.parentProductId = new Types.ObjectId(dto.parentProductId);
+      }
+
+      await this.productModel.findByIdAndUpdate(id, updateData, { new: true });
+    } catch {
+      throw new HttpException('Error updating product', HttpStatus.BAD_REQUEST);
+    }
   }
 }

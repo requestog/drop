@@ -27,7 +27,7 @@ export class ReviewService {
         ? await Promise.all(
             images.map(
               (image: Express.Multer.File): Promise<string | undefined> =>
-                this.fileService.createFile(image, 'reviews'),
+                this.fileService.saveFile(image, 'reviews'),
             ),
           )
         : [];

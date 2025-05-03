@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { Document, Types } from 'mongoose';
-import { Brand } from '../../brands/models/brand.model';
 
 @Schema({ timestamps: true })
 export class Product extends Document {
@@ -27,7 +26,7 @@ export class Product extends Document {
   discount?: number;
 
   @Prop({ type: Types.ObjectId, ref: 'Brand', required: true })
-  brandId: Brand;
+  brandId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'ParentProduct', required: true })
   parentProductId: Types.ObjectId;

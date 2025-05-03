@@ -13,25 +13,21 @@ import {
 import { Transform } from 'class-transformer';
 import { Types } from 'mongoose';
 
-export class ProductCreateDto {
-  @IsNotEmpty({ message: 'Имя не может быть пустым' })
+export class ProductUpdateDto {
   @IsString({ message: 'Имя должно быть строкой' })
   @MaxLength(255, { message: 'Слишком длинное имя (макс. 255 символов)' })
-  name: string;
+  name?: string;
 
-  @IsNotEmpty({ message: 'Описание не может быть пустым' })
   @IsString({ message: 'Описание должно быть строкой' })
   @MaxLength(500, { message: 'Слишком длинное описание (макс. 500 символов)' })
-  description: string;
+  description?: string;
 
-  @IsNotEmpty({ message: 'Цена не может быть пустой' })
   @IsNumber({}, { message: 'Цена должна быть числом' })
   @Min(0, { message: 'Цена не может быть отрицательной' })
-  price: number;
+  price?: number;
 
-  @IsNotEmpty({ message: 'Должен быть указан хотя бы один цвет' })
   @IsString({ each: true, message: 'Цвет должен быть строкой' })
-  color: string;
+  color?: string;
 
   @IsOptional()
   @IsArray({ message: 'Изображения должны быть массивом' })
@@ -42,7 +38,7 @@ export class ProductCreateDto {
   images?: string[];
 
   @IsBoolean({ message: 'Поле isActive должно быть булевым значением' })
-  isActive: boolean;
+  isActive?: boolean;
 
   @IsOptional()
   @IsNumber({}, { message: 'Скидка должна быть числом' })
@@ -50,16 +46,18 @@ export class ProductCreateDto {
   @Max(100, { message: 'Скидка не может быть больше 100%' })
   discount?: number;
 
-  @IsNotEmpty()
   @IsMongoId()
-  brandId: string;
+  brandId?: string;
 
-  @IsNotEmpty()
   @IsMongoId()
-  parentProductId: string;
+  parentProductId?: string;
 
   @IsArray()
   @IsString({ each: true })
   @Transform(({ value }) => value.map((id) => new Types.ObjectId(id)))
   categories?: Types.ObjectId[];
+
+  @IsArray()
+  @IsString({ each: true })
+  imagesToDelete?: string[];
 }

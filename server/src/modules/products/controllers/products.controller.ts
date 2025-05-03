@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UploadedFiles,
   UseInterceptors,
@@ -15,6 +16,7 @@ import { SearchProductsDto } from '../dto/search-products.dto';
 import PaginatedProducts from '../interfaces/paginated-products.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { plainToClass } from 'class-transformer';
+import { ProductUpdateDto } from '../dto/product-update.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -55,5 +57,23 @@ export class ProductsController {
   @Delete('delete/:id')
   async deleteByID(@Param('id') id: string): Promise<void> {
     await this.productsService.deleteProduct(id);
+  }
+
+  @Patch('/update/:id')
+  @UseInterceptors(FilesInterceptor('images'))
+  async updateProduct(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      data: string;
+    },
+    @UploadedFiles() images: Express.Multer.File[],
+  ): Promise<void> {
+    const rawData = JSON.parse(body.data);
+    const productUpdateDto: ProductUpdateDto = plainToClass(
+      ProductUpdateDto,
+      rawData,
+    );
+    await this.productsService.updateProduct(id, productUpdateDto, images);
   }
 }
