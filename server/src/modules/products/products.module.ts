@@ -16,7 +16,7 @@ import { ProductSizesModule } from '../product-sizes/product-sizes.module';
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     FilesModule,
-    forwardRef(() => ProductSizesModule), // Оборачиваем в forwardRef
+    forwardRef(() => ProductSizesModule),
     MongooseModule.forFeature([
       { name: ParentProduct.name, schema: ParentProductSchema },
     ]),
