@@ -25,6 +25,9 @@ export class ParentProduct extends Document {
     default: [],
   })
   products: Types.ObjectId[];
+
+  @Prop({ type: Types.ObjectId, ref: 'Brand', default: null })
+  brand: Types.ObjectId;
 }
 
 export const ParentProductSchema = SchemaFactory.createForClass(ParentProduct);

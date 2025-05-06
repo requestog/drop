@@ -25,6 +25,7 @@ import { Review, ReviewSchema } from '../review/models/review.model';
     MongooseModule.forFeature([
       { name: ParentProduct.name, schema: ParentProductSchema },
     ]),
+    ParentProductService,
   ],
 })
 export class ParentProductModule {}

@@ -3,18 +3,24 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { BrandCreateDto } from '../dto/brand-create.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Brand } from '../models/brand.model';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { FilesService } from '../../files/files.service';
+import { ParentProduct } from '../../parent-product/models/parent-product.model';
+import { ParentProductService } from '../../parent-product/services/parent-product.service';
 
 @Injectable()
 export class BrandsService {
   constructor(
     @InjectModel(Brand.name) private readonly brandModel: Model<Brand>,
+    @InjectModel(ParentProduct.name)
+    private readonly parentProductModel: Model<ParentProduct>,
     private readonly fileService: FilesService,
+    private readonly parentProductService: ParentProductService,
   ) {}
 
   async createBrand(
@@ -29,7 +35,10 @@ export class BrandsService {
       const model = await new this.brandModel({ ...dto, image: imageUrl });
       await model.save();
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to create brand');
     }
   }
 
@@ -39,9 +48,9 @@ export class BrandsService {
     image: Express.Multer.File,
   ) {
     try {
-      const brand = await this.brandModel.findOne({ _id: id });
+      const brand = await this.brandModel.findById(id);
       if (!brand) {
-        throw new InternalServerErrorException(`Brand with id ${id} not found`);
+        throw new NotFoundException(`Brand with id ${id} not found`);
       }
       if (brand.image) {
         await this.fileService.deleteFile(brand.image);
@@ -54,8 +63,37 @@ export class BrandsService {
         { _id: id },
         { name: dto.name, image: imageUrl },
       );
-    } catch {
-      throw new HttpException('Error updating brand', HttpStatus.BAD_REQUEST);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to update brand');
+    }
+  }
+
+  async deleteBrand(id: string): Promise<void> {
+    try {
+      const [brand] = await Promise.all([this.brandModel.findById(id)]);
+      if (!brand) {
+        throw new NotFoundException(`Brand with id ${id} not found`);
+      }
+
+      const products = await this.parentProductModel.find({
+        brand: new Types.ObjectId(id),
+      });
+
+      await Promise.all(
+        products.map((product) =>
+          this.parentProductService.deleteParentProduct(String(product._id)),
+        ),
+      );
+
+      await this.brandModel.deleteOne({ _id: id });
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to delete brand');
     }
   }
 }

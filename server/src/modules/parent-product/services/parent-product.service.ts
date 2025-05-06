@@ -22,7 +22,10 @@ export class ParentProductService {
   ) {}
 
   async createParentProduct(dto: ParentProductCreateDto) {
-    await this.parentProductModel.create({ ...dto });
+    await this.parentProductModel.create({
+      ...dto,
+      brand: new Types.ObjectId(dto.brand),
+    });
   }
 
   async deleteParentProduct(id: string) {

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   Patch,
   Post,
@@ -32,5 +33,10 @@ export class BrandsController {
     @UploadedFile() image: Express.Multer.File,
   ): Promise<void> {
     await this.brandService.updateBrand(dto, id, image);
+  }
+
+  @Delete('delete/:id')
+  async deleteBrand(@Param('id') id: string): Promise<void> {
+    await this.brandService.deleteBrand(id);
   }
 }
