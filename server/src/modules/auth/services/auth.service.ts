@@ -15,6 +15,7 @@ import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { MailService } from '../../mail/services/mail.service';
 import { v4 as uuidv4 } from 'uuid';
 import { SafeUser } from '../../users/types/user.types';
+import { FavoritesService } from '../../favorites/services/favorites.service';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,7 @@ export class AuthService {
     private userService: UsersService,
     private tokenService: TokenService,
     private mailService: MailService,
+    private favoritesService: FavoritesService,
   ) {}
 
   async login(
@@ -66,10 +68,13 @@ export class AuthService {
       );
     }
 
+    await this.favoritesService.createFavorites(createdUser._id);
+
     await this.mailService.sendUserConfirmation(
       loginDto.email,
       confirmationToken,
     );
+
     console.log(createdUser['_doc']);
     return this.tokenService.issueTokensAndSaveSession(
       createdUser['_doc'],

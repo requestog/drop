@@ -10,6 +10,7 @@ import { PassportModule } from '@nestjs/passport';
 import { TokenService } from './services/token.service';
 import { CookieService } from './services/cookie.service';
 import { MailModule } from '../mail/mail.module';
+import { FavoritesModule } from '../favorites/favorites.module';
 
 @Module({
   controllers: [AuthController],
@@ -19,6 +20,7 @@ import { MailModule } from '../mail/mail.module';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     ConfigModule,
     MailModule,
+    FavoritesModule,
 
     JwtModule.registerAsync({
       imports: [ConfigModule],
