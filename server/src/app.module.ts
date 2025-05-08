@@ -13,6 +13,8 @@ import { BrandsModule } from './modules/brands/brands.module';
 import { ParentProductModule } from './modules/parent-product/parent-product.module';
 import { ProductSizesModule } from './modules/product-sizes/product-sizes.module';
 import { CategoryModule } from './modules/category/category.module';
+import { FavoritesModule } from './modules/favorites/favorites.module';
+import { CartModule } from './modules/cart/cart.module';
 
 @Module({
   controllers: [],
@@ -35,6 +37,8 @@ import { CategoryModule } from './modules/category/category.module';
     ParentProductModule,
     ProductSizesModule,
     CategoryModule,
+    FavoritesModule,
+    CartModule,
   ],
 })
 export class AppModule {}
