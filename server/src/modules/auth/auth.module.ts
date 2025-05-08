@@ -11,6 +11,7 @@ import { TokenService } from './services/token.service';
 import { CookieService } from './services/cookie.service';
 import { MailModule } from '../mail/mail.module';
 import { FavoritesModule } from '../favorites/favorites.module';
+import { CartModule } from '../cart/cart.module';
 
 @Module({
   controllers: [AuthController],
@@ -21,6 +22,7 @@ import { FavoritesModule } from '../favorites/favorites.module';
     ConfigModule,
     MailModule,
     FavoritesModule,
+    CartModule,
 
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -16,6 +16,7 @@ import { MailService } from '../../mail/services/mail.service';
 import { v4 as uuidv4 } from 'uuid';
 import { SafeUser } from '../../users/types/user.types';
 import { FavoritesService } from '../../favorites/services/favorites.service';
+import { CartService } from '../../cart/services/cart.service';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,7 @@ export class AuthService {
     private tokenService: TokenService,
     private mailService: MailService,
     private favoritesService: FavoritesService,
+    private cartService: CartService,
   ) {}
 
   async login(
@@ -69,6 +71,7 @@ export class AuthService {
     }
 
     await this.favoritesService.createFavorites(createdUser._id);
+    await this.cartService.createCart(createdUser._id);
 
     await this.mailService.sendUserConfirmation(
       loginDto.email,

@@ -7,11 +7,13 @@ export class Cart extends Document {
   @Prop({ required: true, unique: true, type: Types.ObjectId, ref: 'User' })
   user: Types.ObjectId;
 
-  @Prop({ required: true, type: [CartItem] })
-  items: CartItem[];
+  @Prop({ type: [CartItem], default: undefined })
+  items?: CartItem[];
 
   @Prop({
     virtual: true,
+    default: 0,
+    min: 0,
     get: function (): number {
       return this.items.reduce(
         (sum: number, item: CartItem): number =>
@@ -20,7 +22,7 @@ export class Cart extends Document {
       );
     },
   })
-  total: number;
+  total?: number;
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);
