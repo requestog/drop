@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -35,6 +34,16 @@ export class CartService {
         throw new NotFoundException('Cart not found');
       }
 
+      const existingItem = cart.items.find(
+        (item) =>
+          item.product.equals(new Types.ObjectId(dto.product)) &&
+          item.size.equals(new Types.ObjectId(dto.size)),
+      );
+
+      if (existingItem) {
+        throw new InternalServerErrorException('Item already exists');
+      }
+
       const cartItem = new this.cartItemModel({
         product: new Types.ObjectId(dto.product),
         quantity: dto.quantity,
@@ -42,13 +51,49 @@ export class CartService {
         price: dto.price,
       });
 
-      console.log(cartItem);
-
       cart.items.push(cartItem);
       cart.save();
     } catch (errors) {
       console.log(errors);
       throw new InternalServerErrorException('Failed to add cart');
+    }
+  }
+
+  async get(id: string): Promise<Cart | null> {
+    try {
+      const cart = await this.cartsModel
+        .findById(new Types.ObjectId(id))
+        .exec();
+      return cart ? cart : null;
+    } catch {
+      throw new InternalServerErrorException('Failed to get cart');
+    }
+  }
+
+  async delete(id: string, dto) {
+    try {
+      const cart = await this.cartsModel
+        .findById(new Types.ObjectId(id))
+        .exec();
+
+      if (!cart) {
+        throw new NotFoundException('Cart not found');
+      }
+
+      const itemIndex = cart.items.findIndex(
+        (item) =>
+          item.product.equals(new Types.ObjectId(dto.productId)) &&
+          item.size.equals(new Types.ObjectId(dto.sizeId)),
+      );
+
+      if (itemIndex === -1) {
+        throw new NotFoundException('Item not found in cart');
+      }
+
+      cart.items.splice(itemIndex, 1);
+      cart.save();
+    } catch {
+      throw new InternalServerErrorException('Failed to delete cart');
     }
   }
 }
