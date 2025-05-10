@@ -24,7 +24,7 @@ export class CartService {
     }
   }
 
-  async add(dto) {
+  async add(dto): Promise<void> {
     try {
       const cart = await this.cartsModel.findById(
         new Types.ObjectId(dto.cartId),
@@ -34,13 +34,9 @@ export class CartService {
         throw new NotFoundException('Cart not found');
       }
 
-      const existingItem = cart.items.find(
-        (item) =>
-          item.product.equals(new Types.ObjectId(dto.product)) &&
-          item.size.equals(new Types.ObjectId(dto.size)),
-      );
+      const itemIndex: number = this.findItemIndex(cart, dto);
 
-      if (existingItem) {
+      if (itemIndex) {
         throw new InternalServerErrorException('Item already exists');
       }
 
@@ -70,7 +66,7 @@ export class CartService {
     }
   }
 
-  async delete(id: string, dto) {
+  async delete(id: string, dto): Promise<void> {
     try {
       const cart = await this.cartsModel
         .findById(new Types.ObjectId(id))
@@ -80,11 +76,7 @@ export class CartService {
         throw new NotFoundException('Cart not found');
       }
 
-      const itemIndex = cart.items.findIndex(
-        (item) =>
-          item.product.equals(new Types.ObjectId(dto.productId)) &&
-          item.size.equals(new Types.ObjectId(dto.sizeId)),
-      );
+      const itemIndex: number = this.findItemIndex(cart, dto);
 
       if (itemIndex === -1) {
         throw new NotFoundException('Item not found in cart');
@@ -95,5 +87,33 @@ export class CartService {
     } catch {
       throw new InternalServerErrorException('Failed to delete cart');
     }
+  }
+
+  async updateCart(id: string, dto): Promise<void> {
+    try {
+      const cart = await this.cartsModel.findById(new Types.ObjectId(id));
+      if (!cart) {
+        throw new NotFoundException('Cart not found');
+      }
+
+      const itemIndex: number = this.findItemIndex(cart, dto);
+
+      if (itemIndex === -1) {
+        throw new NotFoundException('Item not found in cart');
+      }
+
+      cart.items[itemIndex].quantity = dto.quantity;
+      cart.save();
+    } catch {
+      throw new InternalServerErrorException('Failed to update cart');
+    }
+  }
+
+  private findItemIndex(cart, dto): number {
+    return cart.items.findIndex(
+      (item) =>
+        item.product.equals(new Types.ObjectId(dto.productId)) &&
+        item.size.equals(new Types.ObjectId(dto.sizeId)),
+    );
   }
 }
