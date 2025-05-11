@@ -13,12 +13,7 @@ export class FavoritesController {
 
   @Delete('delete/:id')
   async deleteOne(@Param('id') id: string, @Body() dto): Promise<void> {
-    await this.favoritesService.deleteOne(id, dto);
-  }
-
-  @Delete('/deleteAll/:id')
-  async deleteAll(@Param('id') id: string): Promise<void> {
-    await this.favoritesService.deleteAll(id);
+    await this.favoritesService.delete(id, dto);
   }
 
   @Get('/:id')

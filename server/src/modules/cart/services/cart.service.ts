@@ -49,8 +49,7 @@ export class CartService {
 
       cart.items.push(cartItem);
       cart.save();
-    } catch (errors) {
-      console.log(errors);
+    } catch {
       throw new InternalServerErrorException('Failed to add cart');
     }
   }
