@@ -7,6 +7,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from '../models/cart.model';
 import { Model, Types } from 'mongoose';
 import { CartItem } from '../models/cart-item.model';
+import { CartCreateDto } from '../dto/cart-create.dto';
+import { CartDeleteDto } from '../dto/cart-delete.dto';
+import { CartUpdateDto } from '../dto/cart-update.dto';
 
 @Injectable()
 export class CartService {
@@ -24,11 +27,9 @@ export class CartService {
     }
   }
 
-  async add(dto): Promise<void> {
+  async add(dto: CartCreateDto): Promise<void> {
     try {
-      const cart = await this.cartsModel.findById(
-        new Types.ObjectId(dto.cartId),
-      );
+      const cart = await this.cartsModel.findById(new Types.ObjectId(dto.cart));
 
       if (!cart) {
         throw new NotFoundException('Cart not found');
@@ -48,7 +49,7 @@ export class CartService {
       });
 
       cart.items.push(cartItem);
-      cart.save();
+      await cart.save();
     } catch {
       throw new InternalServerErrorException('Failed to add cart');
     }
@@ -65,7 +66,7 @@ export class CartService {
     }
   }
 
-  async delete(id: string, dto): Promise<void> {
+  async delete(id: string, dto: CartDeleteDto): Promise<void> {
     try {
       const cart = await this.cartsModel
         .findById(new Types.ObjectId(id))
@@ -82,13 +83,13 @@ export class CartService {
       }
 
       cart.items.splice(itemIndex, 1);
-      cart.save();
+      await cart.save();
     } catch {
       throw new InternalServerErrorException('Failed to delete cart');
     }
   }
 
-  async updateCart(id: string, dto): Promise<void> {
+  async updateCart(id: string, dto: CartUpdateDto): Promise<void> {
     try {
       const cart = await this.cartsModel.findById(new Types.ObjectId(id));
       if (!cart) {
@@ -108,11 +109,11 @@ export class CartService {
     }
   }
 
-  private findItemIndex(cart, dto): number {
+  private findItemIndex(cart, dto: CartDeleteDto): number {
     return cart.items.findIndex(
       (item) =>
-        item.product.equals(new Types.ObjectId(dto.productId)) &&
-        item.size.equals(new Types.ObjectId(dto.sizeId)),
+        item.product.equals(new Types.ObjectId(dto.product)) &&
+        item.size.equals(new Types.ObjectId(dto.size)),
     );
   }
 }
