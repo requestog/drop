@@ -15,6 +15,7 @@ import { ProductSizesModule } from './modules/product-sizes/product-sizes.module
 import { CategoryModule } from './modules/category/category.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { CartModule } from './modules/cart/cart.module';
+import { OrderModule } from './modules/order/order.module';
 
 @Module({
   controllers: [],
@@ -39,6 +40,7 @@ import { CartModule } from './modules/cart/cart.module';
     CategoryModule,
     FavoritesModule,
     CartModule,
+    OrderModule,
   ],
 })
 export class AppModule {}
