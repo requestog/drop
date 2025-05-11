@@ -1,6 +1,10 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CartDeleteDto {
+export class FavoritesCreateDto {
+  @IsNotEmpty({ message: 'Поле favorites не должно быть пустым' })
+  @IsString({ message: 'Поле favorites должно быть строкой' })
+  favorites: string;
+
   @IsNotEmpty({ message: 'Поле product не должно быть пустым' })
   @IsString({ message: 'Поле product должно быть строкой' })
   product: string;

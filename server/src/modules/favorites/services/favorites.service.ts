@@ -8,6 +8,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Favorites } from '../models/favorites';
 import { Model, Types } from 'mongoose';
 import { FavoriteItem } from '../models/favorite-item.model';
+import { FavoritesDeleteDto } from '../dto/favorites-delete.dto';
+import { FavoritesCreateDto } from '../dto/favorites-create.dto';
 
 @Injectable()
 export class FavoritesService {
@@ -29,10 +31,10 @@ export class FavoritesService {
     }
   }
 
-  async add(dto): Promise<void> {
+  async add(dto: FavoritesCreateDto): Promise<void> {
     try {
       const favorites = await this.favoritesModel.findById(
-        new Types.ObjectId(dto.favoritesId),
+        new Types.ObjectId(dto.favorites),
       );
 
       if (!favorites) {
@@ -46,8 +48,8 @@ export class FavoritesService {
       }
 
       const favoriteItem = new this.favoriteItemModel({
-        product: new Types.ObjectId(dto.productId),
-        size: new Types.ObjectId(dto.sizeId),
+        product: new Types.ObjectId(dto.product),
+        size: new Types.ObjectId(dto.size),
       });
 
       favorites.items.push(favoriteItem);
@@ -73,7 +75,7 @@ export class FavoritesService {
     }
   }
 
-  async delete(id: string, dto): Promise<void> {
+  async delete(id: string, dto: FavoritesDeleteDto): Promise<void> {
     try {
       const favorites = await this.favoritesModel.findById(
         new Types.ObjectId(id),
@@ -98,8 +100,8 @@ export class FavoritesService {
   private findItemIndex(favorites, dto): number {
     return favorites.items.findIndex(
       (item) =>
-        item.product.equals(new Types.ObjectId(dto.productId)) &&
-        item.size.equals(new Types.ObjectId(dto.sizeId)),
+        item.product.equals(new Types.ObjectId(dto.product)) &&
+        item.size.equals(new Types.ObjectId(dto.size)),
     );
   }
 }
