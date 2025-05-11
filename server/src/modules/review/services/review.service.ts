@@ -54,7 +54,10 @@ export class ReviewService {
     }
   }
 
-  private async updateProductRating(productId: string, reviewId) {
+  private async updateProductRating(
+    productId: string,
+    reviewId,
+  ): Promise<void> {
     const product = await this.productModel.findById(productId);
     if (!product) {
       throw new Error('Product not found');

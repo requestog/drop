@@ -8,12 +8,12 @@ export class ProductSizesController {
   constructor(private readonly productSizesService: ProductSizesService) {}
 
   @Post('/create')
-  async createSize(@Body() dto: ProductSizesCreateDto) {
+  async createSize(@Body() dto: ProductSizesCreateDto): Promise<void> {
     await this.productSizesService.createSize(dto);
   }
 
   @Delete('/delete/:id')
-  async deleteSize(@Param('id') id: string) {
+  async deleteSize(@Param('id') id: string): Promise<void> {
     await this.productSizesService.deleteSize(id);
   }
 
@@ -21,7 +21,7 @@ export class ProductSizesController {
   async updateSize(
     @Param('id') id: string,
     @Body() dto: ProductSizesUpdateDto,
-  ) {
+  ): Promise<void> {
     await this.productSizesService.updateSize(id, dto);
   }
 }

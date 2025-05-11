@@ -21,14 +21,14 @@ export class ParentProductService {
     private readonly reviewModel: Model<Review>,
   ) {}
 
-  async createParentProduct(dto: ParentProductCreateDto) {
+  async createParentProduct(dto: ParentProductCreateDto): Promise<void> {
     await this.parentProductModel.create({
       ...dto,
       brand: new Types.ObjectId(dto.brand),
     });
   }
 
-  async deleteParentProduct(id: string) {
+  async deleteParentProduct(id: string): Promise<void> {
     try {
       const parentProduct = await this.parentProductModel.findOne({ _id: id });
       if (!parentProduct) new NotFoundException('Parent product not found');

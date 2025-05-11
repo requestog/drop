@@ -12,7 +12,7 @@ export class CategoryService {
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
   ) {}
 
-  async createCategory(dto: CategoryCreateDto) {
+  async createCategory(dto: CategoryCreateDto): Promise<void> {
     try {
       await this.categoryModel.create({ ...dto });
     } catch (error) {
@@ -20,7 +20,7 @@ export class CategoryService {
     }
   }
 
-  async deleteCategory(id: string) {
+  async deleteCategory(id: string): Promise<void> {
     try {
       const objectId = new Types.ObjectId(id);
       const category = await this.categoryModel.findById(objectId);
@@ -41,7 +41,7 @@ export class CategoryService {
     }
   }
 
-  async updateCategory(id: string, dto) {
+  async updateCategory(id: string, dto): Promise<void> {
     try {
       const objectId = new Types.ObjectId(id);
       const category = await this.categoryModel.findById(objectId);

@@ -44,7 +44,7 @@ export class BrandsService {
     dto: BrandCreateDto,
     id: string,
     image: Express.Multer.File,
-  ) {
+  ): Promise<void> {
     try {
       const brand = await this.brandModel.findById(id);
       if (!brand) {
@@ -81,8 +81,9 @@ export class BrandsService {
       });
 
       await Promise.all(
-        products.map((product) =>
-          this.parentProductService.deleteParentProduct(String(product._id)),
+        products.map(
+          (product): Promise<void> =>
+            this.parentProductService.deleteParentProduct(String(product._id)),
         ),
       );
 

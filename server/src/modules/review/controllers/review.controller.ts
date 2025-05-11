@@ -12,6 +12,7 @@ import { ReviewService } from '../services/review.service';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { Review } from '../models/review.model';
 
 @Controller('products/reviews')
 export class ReviewController {
@@ -28,8 +29,8 @@ export class ReviewController {
     await this.reviewService.createReview(createReviewDto, images);
   }
 
-  @Get()
-  async getReviews(@Param('productId') productId: string) {
+  @Get('/get')
+  async getReviews(@Param('productId') productId: string): Promise<Review[]> {
     return this.reviewService.getProductReviews(productId);
   }
 }

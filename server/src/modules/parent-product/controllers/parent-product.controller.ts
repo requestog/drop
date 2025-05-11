@@ -7,12 +7,14 @@ export class ParentProductController {
   constructor(private readonly parentProductService: ParentProductService) {}
 
   @Post('/create')
-  async createParentProduct(@Body() dto: ParentProductCreateDto) {
+  async createParentProduct(
+    @Body() dto: ParentProductCreateDto,
+  ): Promise<void> {
     await this.parentProductService.createParentProduct(dto);
   }
 
   @Delete('/delete/:id')
-  async deleteParentProduct(@Param('id') id: string) {
+  async deleteParentProduct(@Param('id') id: string): Promise<void> {
     await this.parentProductService.deleteParentProduct(id);
   }
 }

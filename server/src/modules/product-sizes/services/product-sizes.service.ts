@@ -19,7 +19,7 @@ export class ProductSizesService {
     @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
 
-  async createSize(dto: ProductSizesCreateDto) {
+  async createSize(dto: ProductSizesCreateDto): Promise<void> {
     try {
       const size = new this.productSizesModel({
         ...dto,
@@ -35,7 +35,7 @@ export class ProductSizesService {
     }
   }
 
-  async deleteSize(id: string) {
+  async deleteSize(id: string): Promise<void> {
     try {
       const objectId = new Types.ObjectId(id);
       const productSize = await this.productSizesModel.findById(objectId);
@@ -57,7 +57,7 @@ export class ProductSizesService {
     }
   }
 
-  async updateSize(id: string, dto: ProductSizesUpdateDto) {
+  async updateSize(id: string, dto: ProductSizesUpdateDto): Promise<void> {
     try {
       const size = await this.productSizesModel.findOne({ _id: id });
       if (!size) throw new NotFoundException('Size not found');
