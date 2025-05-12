@@ -3,9 +3,10 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 
 async function start(): Promise<void> {
+  const logger: Logger = new Logger('Server');
   const PORT: string | 3000 = process.env.PORT || 3000;
   const app: NestExpressApplication =
     await NestFactory.create<NestExpressApplication>(AppModule);
@@ -19,7 +20,7 @@ async function start(): Promise<void> {
       transform: true,
     }),
   );
-  await app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+  await app.listen(PORT, () => logger.log(`Server started on port ${PORT}`));
 }
 
 start();
