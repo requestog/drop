@@ -121,70 +121,125 @@ export class ProductsService {
   }
 
   async search(dto: SearchProductsDto): Promise<PaginatedProducts> {
-    const filter: any = {};
+    const pipeline: any = [];
 
     if (dto.query) {
-      filter.$or = [
-        {
-          name: {
-            $regex: dto.query,
-            $options: 'i',
-          },
+      pipeline.push({
+        $match: {
+          $or: [
+            { name: { $regex: dto.query, $options: 'i' } },
+            { description: { $regex: dto.query, $options: 'i' } },
+          ],
         },
-        {
-          description: {
-            $regex: dto.query,
-            $options: 'i',
-          },
-        },
-      ];
+      });
     }
 
     if (dto.categories) {
-      filter.category = { $in: dto.categories };
+      pipeline.push({
+        $match: {
+          categories: {
+            $in: dto.categories.map((id) => new Types.ObjectId(id)),
+          },
+        },
+      });
     }
 
-    if (dto.colors) {
-      filter.colors = { $in: dto.colors };
+    if (dto.color) {
+      pipeline.push({
+        $match: { color: { $in: dto.color } },
+      });
     }
 
     if (dto.price) {
-      filter.price = {};
-      if (dto.price.min) filter.price.$gte = dto.price.min;
-      if (dto.price.max) filter.price.$lte = dto.price.max;
+      const priceFilter: any = {};
+      if (dto.price.min) priceFilter.$gte = dto.price.min;
+      if (dto.price.max) priceFilter.$lte = dto.price.max;
+      pipeline.push({ $match: { price: priceFilter } });
     }
 
     if (dto.sizes) {
-      filter.sizes = { $in: dto.sizes };
-    }
+      pipeline.push({
+        $lookup: {
+          from: 'productsizes',
+          localField: '_id',
+          foreignField: 'productId',
+          as: 'productSizes',
+        },
+      });
+      pipeline.push({
+        $match: {
+          'productSizes.size': { $in: dto.sizes },
+        },
+      });
 
-    if (dto.averageRating) {
-      filter.averageRating = { $in: dto.averageRating };
+      pipeline.push({
+        $unwind: '$productSizes',
+      });
+      pipeline.push({
+        $group: {
+          _id: '$_id',
+          root: { $first: '$$ROOT' },
+        },
+      });
+      pipeline.push({ $replaceRoot: { newRoot: '$root' } });
     }
 
     if (dto.inStock) {
-      filter.stock = { $gt: 0 };
+      pipeline.push({ $match: { stock: { $gt: 0 } } });
     }
 
-    const sortOptions = {};
-    if (dto.sort?.field) {
-      sortOptions[dto.sort.field] = dto.sort.order === 'asc' ? 1 : -1;
+    if (dto.brandId) {
+      pipeline.push({ $match: { brandId: new Types.ObjectId(dto.brandId) } });
     }
 
-    const skip: number =
+    const sortStage: any = {};
+    if (dto.sort?.field === 'averageRating') {
+      const lookupRating = pipeline.find(
+        (stage) => stage.$lookup?.as === 'parentProduct',
+      );
+      if (!lookupRating) {
+        pipeline.push({
+          $lookup: {
+            from: 'parentproducts',
+            localField: 'parentProductId',
+            foreignField: '_id',
+            as: 'parentProduct',
+            pipeline: [{ $project: { _id: 0, averageRating: 1 } }],
+          },
+        });
+        pipeline.push({ $unwind: '$parentProduct' });
+      }
+      sortStage.$sort = {
+        'parentProduct.averageRating': dto.sort.order === 'asc' ? 1 : -1,
+      };
+    } else if (dto.sort?.field) {
+      sortStage.$sort = { [dto.sort.field]: dto.sort.order === 'asc' ? 1 : -1 };
+    }
+    if (Object.keys(sortStage).length > 0) {
+      pipeline.push(sortStage);
+    }
+
+    const skip =
       dto.pagination?.page && dto.pagination?.limit
         ? (dto.pagination.page - 1) * dto.pagination.limit
         : 0;
-    const limit: number = dto.pagination?.limit || 20;
+    const limit = dto.pagination?.limit || 20;
+
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: limit });
+
+    const items = await this.productModel.aggregate(pipeline).exec();
+
+    const countPipeline = [...pipeline];
+    countPipeline.pop();
+    countPipeline.pop();
+    countPipeline.push({ $count: 'total' });
+    const totalResult = await this.productModel.aggregate(countPipeline).exec();
+    const total = totalResult.length > 0 ? totalResult[0].total : 0;
 
     return {
-      items: await this.productModel
-        .find(filter)
-        .sort(sortOptions)
-        .skip(skip)
-        .limit(limit)
-        .exec(),
-      total: await this.productModel.countDocuments(filter),
+      items,
+      total,
       page: dto.pagination?.page,
       limit: dto.pagination?.limit,
     };

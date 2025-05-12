@@ -40,7 +40,6 @@ export class ProductsController {
   async searchProducts(
     @Body() dto: SearchProductsDto,
   ): Promise<PaginatedProducts> {
-    console.log(dto);
     return this.productsService.search(dto);
   }
 

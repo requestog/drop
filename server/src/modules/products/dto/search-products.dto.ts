@@ -62,9 +62,8 @@ export class SearchProductsDto {
   categories?: string[];
 
   @IsOptional()
-  @IsArray({ message: 'Цвета должны быть массивом' })
-  @IsString({ each: true, message: 'Каждый цвет должен быть строкой' })
-  colors?: string[];
+  @IsString({ each: true, message: 'Цвет должен быть строкой' })
+  color?: string;
 
   @IsOptional()
   @ValidateNested()
@@ -85,6 +84,10 @@ export class SearchProductsDto {
   @IsOptional()
   @IsBoolean({ message: 'Поле inStock должно быть булевым значением' })
   inStock?: boolean;
+
+  @IsOptional()
+  @IsString({ message: 'Поле brandId должно быть строковым значением' })
+  brandId?: string;
 
   @IsOptional()
   @ValidateNested()
