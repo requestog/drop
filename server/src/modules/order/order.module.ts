@@ -4,6 +4,10 @@ import { OrderService } from './services/order.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Order, OrderSchema } from './models/order.model';
 import { OrderItem, OrderItemSchema } from './models/order-item.model';
+import {
+  ProductSizes,
+  ProductSizesSchema,
+} from '../product-sizes/models/product-sizes.model';
 
 @Module({
   controllers: [OrderController],
@@ -12,6 +16,9 @@ import { OrderItem, OrderItemSchema } from './models/order-item.model';
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
     MongooseModule.forFeature([
       { name: OrderItem.name, schema: OrderItemSchema },
+    ]),
+    MongooseModule.forFeature([
+      { name: ProductSizes.name, schema: ProductSizesSchema },
     ]),
   ],
 })
