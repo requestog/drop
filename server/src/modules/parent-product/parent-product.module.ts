@@ -9,6 +9,7 @@ import {
 import { ProductsModule } from '../products/products.module';
 import { ReviewModule } from '../review/review.module';
 import { Review, ReviewSchema } from '../review/models/review.model';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [ParentProductController],
@@ -19,6 +20,7 @@ import { Review, ReviewSchema } from '../review/models/review.model';
       { name: Review.name, schema: ReviewSchema },
     ]),
     ProductsModule,
+    AuthModule,
     forwardRef(() => ReviewModule),
   ],
   exports: [

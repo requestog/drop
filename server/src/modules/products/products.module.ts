@@ -9,6 +9,7 @@ import {
   ParentProductSchema,
 } from '../parent-product/models/parent-product.model';
 import { ProductSizesModule } from '../product-sizes/product-sizes.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [ProductsController],
@@ -16,6 +17,7 @@ import { ProductSizesModule } from '../product-sizes/product-sizes.module';
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     FilesModule,
+    AuthModule,
     forwardRef(() => ProductSizesModule),
     MongooseModule.forFeature([
       { name: ParentProduct.name, schema: ParentProductSchema },

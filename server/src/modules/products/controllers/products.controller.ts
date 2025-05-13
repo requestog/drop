@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ProductsService } from '../services/products.service';
@@ -17,12 +18,14 @@ import PaginatedProducts from '../interfaces/paginated-products.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { plainToClass } from 'class-transformer';
 import { ProductUpdateDto } from '../dto/product-update.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post('/create')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FilesInterceptor('images'))
   async createProduct(
     @Body() body: { data: string },
@@ -54,11 +57,13 @@ export class ProductsController {
   }
 
   @Delete('delete/:id')
+  @UseGuards(JwtAuthGuard)
   async deleteByID(@Param('id') id: string): Promise<void> {
     await this.productsService.deleteProduct(id);
   }
 
   @Patch('/update/:id')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FilesInterceptor('images'))
   async updateProduct(
     @Param('id') id: string,

@@ -9,6 +9,7 @@ import {
   ParentProduct,
   ParentProductSchema,
 } from '../parent-product/models/parent-product.model';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [BrandsController],
@@ -20,6 +21,7 @@ import {
     ]),
     FilesModule,
     ParentProductModule,
+    AuthModule,
   ],
 })
 export class BrandsModule {}

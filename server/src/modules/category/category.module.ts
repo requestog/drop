@@ -4,6 +4,7 @@ import { CategoryService } from './services/category.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Category, CategorySchema } from './models/category.model';
 import { ProductsModule } from '../products/products.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [CategoryController],
@@ -13,6 +14,7 @@ import { ProductsModule } from '../products/products.module';
       { name: Category.name, schema: CategorySchema },
     ]),
     ProductsModule,
+    AuthModule,
   ],
 })
 export class CategoryModule {}
