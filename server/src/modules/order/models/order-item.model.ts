@@ -10,7 +10,7 @@ export class OrderItem extends Document {
   size: Types.ObjectId;
 
   @Prop({ type: Number, default: 1, min: 1 })
-  quantity: number;
+  count: number;
 }
 
 export const OrderItemSchema = SchemaFactory.createForClass(OrderItem);

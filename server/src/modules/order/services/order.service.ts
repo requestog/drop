@@ -27,7 +27,7 @@ export class OrderService {
         0,
       );
       const order = new this.orderModel({
-        user: dto.user,
+        user: new Types.ObjectId(dto.user),
         items: dto.cart.map(
           (item) =>
             new this.orderItemModel({
@@ -41,6 +41,7 @@ export class OrderService {
       });
 
       await order.save();
+
       await Promise.all(
         dto.cart.map(async (cartItem): Promise<void> => {
           try {
@@ -77,6 +78,19 @@ export class OrderService {
         error.stack,
       );
       throw new InternalServerErrorException('Error creating Order');
+    }
+  }
+
+  async getOrders(id: string): Promise<Order[] | null> {
+    try {
+      return await this.orderModel
+        .find({ user: new Types.ObjectId(id) })
+        .exec();
+    } catch (error) {
+      this.logger.error(
+        `Error getting orders for user ${id}, ${error.message}`,
+      );
+      throw new InternalServerErrorException('Error getting orders');
     }
   }
 }
