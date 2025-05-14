@@ -3,7 +3,15 @@ import { MailService } from '../services/mail.service';
 import { UsersService } from '../../users/services/users.service';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiExcludeEndpoint,
+} from '@nestjs/swagger';
 
+@ApiTags('Mail')
 @Controller('mail')
 export class MailController {
   constructor(
@@ -13,6 +21,30 @@ export class MailController {
   ) {}
 
   @Get('activate/:confirmationToken')
+  @ApiOperation({ summary: 'Подтверждение email' })
+  @ApiParam({
+    name: 'confirmationToken',
+    description: 'Токен подтверждения email',
+    example: 'a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6',
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Редирект на клиент после подтверждения',
+    headers: {
+      Location: {
+        description: 'URL для редиректа',
+        example: 'https://client.com/email-confirmed',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Невалидный токен подтверждения',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Токен не найден или истек',
+  })
   async confirmEmail(
     @Param('confirmationToken') confirmationToken: string,
     @Res() res: Response,
