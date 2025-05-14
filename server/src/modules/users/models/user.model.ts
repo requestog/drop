@@ -1,10 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Role } from '../enums/role.enum';
 import { IUser } from '../interfaces/user.interface';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })
 export class User extends Document implements IUser {
+  @ApiProperty({
+    example: 'user@example.com',
+    description: 'Email пользователя',
+    required: true,
+  })
   @Prop({
     type: String,
     required: true,
@@ -16,27 +22,69 @@ export class User extends Document implements IUser {
   @Prop({ type: String, required: true })
   passwordHash: string;
 
+  @ApiProperty({
+    example: 'cool_nickname',
+    description: 'Уникальное имя пользователя',
+    required: true,
+  })
   @Prop({ type: String, required: true, unique: true, trim: true })
   nickName: string;
 
+  @ApiProperty({
+    example: 'Иван',
+    description: 'Имя пользователя',
+    required: false,
+  })
   @Prop({ type: String, trim: true })
   name?: string;
 
+  @ApiProperty({
+    example: 'Иванов',
+    description: 'Фамилия пользователя',
+    required: false,
+  })
   @Prop({ type: String, trim: true })
   surname?: string;
 
+  @ApiProperty({
+    example: 'Иванович',
+    description: 'Отчество пользователя',
+    required: false,
+  })
   @Prop({ type: String, trim: true })
   patronymic?: string;
 
+  @ApiProperty({
+    example: [Role.User],
+    description: 'Роли пользователя',
+    enum: Role,
+    default: [Role.User],
+    required: true,
+  })
   @Prop({ type: [String], enum: Role, default: [Role.User], required: true })
   roles: Role[];
 
+  @ApiProperty({
+    example: '+79991234567',
+    description: 'Номер телефона',
+    required: false,
+  })
   @Prop({ type: String, trim: true })
   phone?: string;
 
+  @ApiProperty({
+    example: 'https://example.com/avatar.jpg',
+    description: 'URL аватара',
+    required: false,
+  })
   @Prop({ type: String })
   avatarUrl?: string;
 
+  @ApiProperty({
+    example: false,
+    description: 'Подтвержден ли email',
+    default: false,
+  })
   @Prop({ type: Boolean, default: false })
   emailVerified: boolean;
 

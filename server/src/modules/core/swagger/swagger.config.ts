@@ -5,6 +5,10 @@ export const SWAGGER_CONFIG = new DocumentBuilder()
   .setTitle('DROP STORE API')
   .setDescription(SWAGGER_DESC)
   .setVersion('1.0')
+  .addCookieAuth('refreshToken', {
+    type: 'apiKey',
+    in: 'cookie',
+  })
   .addBearerAuth(
     {
       type: 'http',

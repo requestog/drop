@@ -77,8 +77,7 @@ export class AuthService {
       loginDto.email,
       confirmationToken,
     );
-
-    console.log(createdUser['_doc']);
+    
     return this.tokenService.issueTokensAndSaveSession(
       createdUser['_doc'],
       userAgent,

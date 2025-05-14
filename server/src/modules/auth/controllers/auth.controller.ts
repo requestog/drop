@@ -15,7 +15,19 @@ import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { CookieService } from '../services/cookie.service';
 import { TokenService } from '../services/token.service';
 import { LogoutDto } from '../dto/logout.dto';
+import {
+  ApiBody,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { LoginResponseDto } from '../dto/login-response.dto';
+import { RegistrationResponseDto } from '../dto/registration-response.dto';
+import { RefreshResponseDto } from '../dto/refresh-response.dto';
+import { LogoutResponseDto } from '../dto/logout-response.dto';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -25,6 +37,17 @@ export class AuthController {
   ) {}
 
   @Post('/login')
+  @ApiOperation({ summary: 'Вход в систему' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Успешный вход',
+    type: LoginResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Неверные учетные данные',
+  })
+  @ApiBody({ type: LoginDto })
   async login(
     @Body() loginDto: LoginDto,
     @Req() req: Request,
@@ -42,6 +65,17 @@ export class AuthController {
   }
 
   @Post('/registration')
+  @ApiOperation({ summary: 'Регистрация нового пользователя' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Пользователь успешно зарегистрирован',
+    type: RegistrationResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Невалидные данные или email уже занят',
+  })
+  @ApiBody({ type: LoginDto })
   async registration(
     @Body() loginDto: LoginDto,
     @Req() req: Request,
@@ -62,6 +96,18 @@ export class AuthController {
   }
 
   @Post('/logout')
+  @ApiOperation({ summary: 'Выход из системы' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Успешный выход',
+    type: LogoutResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Невалидный ID сессии',
+  })
+  @ApiCookieAuth('refreshToken')
+  @ApiBody({ type: LogoutDto })
   async logout(
     @Body() logoutDto: LogoutDto,
     @Res({ passthrough: true })
@@ -74,6 +120,17 @@ export class AuthController {
   }
 
   @Post('/refresh')
+  @ApiOperation({ summary: 'Обновление токена доступа' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Токен успешно обновлен',
+    type: RefreshResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Невалидный refresh токен',
+  })
+  @ApiCookieAuth('refreshToken')
   async refresh(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,

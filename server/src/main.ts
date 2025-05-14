@@ -34,7 +34,7 @@ async function start(): Promise<void> {
       logger.log(`Server started on port ${PORT}`),
     );
   } catch (error) {
-    this.logger.error(`Failed to start on port ${PORT}`, error.stack);
+    logger.error(`Failed to start on port ${PORT}`, error.stack);
     process.exit(1);
   }
 }
