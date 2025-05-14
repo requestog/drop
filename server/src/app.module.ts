@@ -41,6 +41,7 @@ import { OrderModule } from './modules/order/order.module';
     FavoritesModule,
     CartModule,
     OrderModule,
+    ConfigModule,
   ],
 })
 export class AppModule {}
