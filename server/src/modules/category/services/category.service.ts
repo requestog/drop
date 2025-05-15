@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CategoryCreateDto } from '../dto/category-create.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Category } from '../models/category.model';
@@ -12,10 +12,13 @@ export class CategoryService {
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
   ) {}
 
+  private readonly logger: Logger = new Logger('CategoryService');
+
   async createCategory(dto: CategoryCreateDto): Promise<void> {
     try {
       await this.categoryModel.create({ ...dto });
     } catch (error) {
+      this.logger.error(`Error create category: ${error.message}`, error.stack);
       throw new Error('Error create category', error.message);
     }
   }
@@ -33,7 +36,11 @@ export class CategoryService {
         { categories: objectId },
         { $pull: { categories: objectId } },
       );
-    } catch {
+    } catch (error) {
+      this.logger.error(
+        `Error deleting category: ${error.message}`,
+        error.stack,
+      );
       throw new HttpException(
         'Error occurred while deleting category',
         HttpStatus.BAD_REQUEST,
@@ -52,7 +59,11 @@ export class CategoryService {
       if (dto.isActive !== undefined) category.isActive = dto.isActive;
 
       await category.save();
-    } catch {
+    } catch (error) {
+      this.logger.error(
+        `Error updating category: ${error.message}`,
+        error.stack,
+      );
       throw new HttpException(
         'Error updating category',
         HttpStatus.BAD_REQUEST,
