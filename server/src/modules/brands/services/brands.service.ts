@@ -1,6 +1,7 @@
 import {
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { BrandCreateDto } from '../dto/brand-create.dto';
@@ -21,6 +22,8 @@ export class BrandsService {
     private readonly parentProductService: ParentProductService,
   ) {}
 
+  private readonly logger: Logger = new Logger('BrandService');
+
   async createBrand(
     dto: BrandCreateDto,
     image?: Express.Multer.File,
@@ -36,6 +39,7 @@ export class BrandsService {
       if (error instanceof NotFoundException) {
         throw error;
       }
+      this.logger.error(`Failed to create brand: ${error.message}`);
       throw new InternalServerErrorException('Failed to create brand');
     }
   }
@@ -65,6 +69,7 @@ export class BrandsService {
       if (error instanceof NotFoundException) {
         throw error;
       }
+      this.logger.error(`Failed to update brand: ${error.message}`);
       throw new InternalServerErrorException('Failed to update brand');
     }
   }
@@ -92,6 +97,7 @@ export class BrandsService {
       if (error instanceof NotFoundException) {
         throw error;
       }
+      this.logger.error(`Failed to delete brand: ${error.message}`);
       throw new InternalServerErrorException('Failed to delete brand');
     }
   }
