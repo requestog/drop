@@ -1,6 +1,7 @@
 import {
   Injectable,
   InternalServerErrorException,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -20,6 +21,8 @@ export class TokenService {
     private configService: ConfigService,
     @InjectModel(Session.name) private sessionModel: Model<Session>,
   ) {}
+
+  private readonly logger: Logger = new Logger('TokenService');
 
   async generateTokens(user: SafeUser): Promise<AuthTokens> {
     const accessPayload = {
@@ -47,7 +50,7 @@ export class TokenService {
       !refreshSecret ||
       !refreshExpiration
     ) {
-      console.error('JWT configuration is missing!');
+      this.logger.error('JWT configuration is missing');
       throw new InternalServerErrorException('Server configuration error');
     }
 
@@ -65,7 +68,10 @@ export class TokenService {
 
       return { accessToken, refreshToken };
     } catch (error) {
-      console.error('Error generating tokens:', error);
+      this.logger.error(
+        `Error generating tokens: ${error.message}`,
+        error.stack,
+      );
       throw new InternalServerErrorException('Could not generate tokens');
     }
   }
@@ -88,7 +94,7 @@ export class TokenService {
     try {
       return await newSession.save();
     } catch (error) {
-      console.error('Error saving session:', error);
+      this.logger.error(`Error saving session: ${error.message}`, error.stack);
       throw new InternalServerErrorException('Could not save session');
     }
   }
@@ -114,10 +120,11 @@ export class TokenService {
 
       return new Date(Date.now() + expiresInMilliseconds);
     } catch (error) {
-      console.error(
-        `Failed to parse JWT_REFRESH_EXPIRATION value: "${refreshExpirationString}"`,
-        error,
+      this.logger.error(
+        `Failed to parse JWT_REFRESH_EXPIRATION value: "${refreshExpirationString}": ${error.message}`,
+        error.stack,
       );
+
       throw new InternalServerErrorException(
         `Invalid format for JWT_REFRESH_EXPIRATION: "${refreshExpirationString}".
          Use formats like '7d', '2h', '30m'.`,
@@ -129,15 +136,19 @@ export class TokenService {
     user: SafeUser,
     userAgent?: string,
     ipAddress?: string,
-  ): Promise<AuthTokens> {
-    const tokens: AuthTokens = await this.generateTokens(user);
-    await this.createOrUpdateSession(
-      user._id,
-      tokens.refreshToken,
-      userAgent,
-      ipAddress,
-    );
-    return tokens;
+  ): Promise<AuthTokens | undefined> {
+    try {
+      const tokens: AuthTokens = await this.generateTokens(user);
+      await this.createOrUpdateSession(
+        user._id,
+        tokens.refreshToken,
+        userAgent,
+        ipAddress,
+      );
+      return tokens;
+    } catch (error) {
+      this.logger.error(`Error saving session: ${error.message}`, error.stack);
+    }
   }
 
   async validateRefreshToken(
@@ -186,7 +197,10 @@ export class TokenService {
     try {
       await this.sessionModel.deleteOne({ _id: sessionId });
     } catch (error) {
-      console.error(`Error removing session ${sessionId}:`, error);
+      this.logger.error(
+        `Error removing session ${sessionId}: ${error.message}`,
+        error.stack,
+      );
     }
   }
 }

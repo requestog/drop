@@ -52,16 +52,18 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string } | undefined> {
     const userAgent: string | undefined = req.headers['user-agent'];
     const ipAddress: string | undefined = req.ip;
-    const tokens: AuthTokens = await this.authService.login(
+    const tokens: AuthTokens | undefined = await this.authService.login(
       loginDto,
       userAgent,
       ipAddress,
     );
-    this.cookieService.setRefreshToken(res, tokens.refreshToken);
-    return { accessToken: tokens.accessToken };
+    if (tokens) {
+      this.cookieService.setRefreshToken(res, tokens.refreshToken);
+      return { accessToken: tokens.accessToken };
+    }
   }
 
   @Post('/registration')
@@ -80,19 +82,20 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string } | undefined> {
     const userAgent: string | undefined = req.headers['user-agent'];
     const ipAddress: string | undefined = req.ip;
-    const tokens: AuthTokens = await this.authService.registration(
+    const tokens: AuthTokens | undefined = await this.authService.registration(
       loginDto,
       userAgent,
       ipAddress,
     );
 
-    this.cookieService.setRefreshToken(res, tokens.refreshToken);
-    res.status(HttpStatus.CREATED);
-
-    return { accessToken: tokens.accessToken };
+    if (tokens) {
+      this.cookieService.setRefreshToken(res, tokens.refreshToken);
+      res.status(HttpStatus.CREATED);
+      return { accessToken: tokens.accessToken };
+    }
   }
 
   @Post('/logout')
@@ -134,20 +137,22 @@ export class AuthController {
   async refresh(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string } | undefined> {
     const refreshTokenFromCookie: RefreshTokenDto = req.cookies?.refreshToken;
     if (!refreshTokenFromCookie) {
       throw new UnauthorizedException('Refresh token not found in cookie.');
     }
     const userAgent: string | undefined = req.headers['user-agent'];
     const ipAddress: string | undefined = req.ip;
-    const tokens: AuthTokens = await this.authService.refreshToken(
+    const tokens: AuthTokens | undefined = await this.authService.refreshToken(
       refreshTokenFromCookie,
       userAgent,
       ipAddress,
     );
 
-    this.cookieService.setRefreshToken(res, tokens.refreshToken);
-    return { accessToken: tokens.accessToken };
+    if (tokens) {
+      this.cookieService.setRefreshToken(res, tokens.refreshToken);
+      return { accessToken: tokens.accessToken };
+    }
   }
 }

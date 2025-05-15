@@ -35,7 +35,7 @@ export class AuthService {
     loginDto: LoginDto,
     userAgent?: string,
     ipAddress?: string,
-  ): Promise<AuthTokens> {
+  ): Promise<AuthTokens | undefined> {
     try {
       const user: SafeUser = await this.validateUserCredentials(loginDto);
       console.log(user);
@@ -54,7 +54,7 @@ export class AuthService {
     loginDto: LoginDto,
     userAgent?: string,
     ipAddress?: string,
-  ): Promise<AuthTokens> {
+  ): Promise<AuthTokens | undefined> {
     try {
       const candidate: User | null = await this.userService.getUserByEmail(
         loginDto.email,
@@ -105,7 +105,7 @@ export class AuthService {
     refreshTokenDto: RefreshTokenDto,
     userAgent?: string,
     ipAddress?: string,
-  ): Promise<AuthTokens> {
+  ): Promise<AuthTokens | undefined> {
     try {
       const { session, payload } = await this.tokenService.validateRefreshToken(
         refreshTokenDto.refreshToken,
