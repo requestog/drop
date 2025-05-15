@@ -27,7 +27,7 @@ export class ProductsService {
     private readonly productSizeModel: Model<ProductSizes>,
   ) {}
 
-  private readonly logger: Logger = new Logger('FavoritesService');
+  private readonly logger: Logger = new Logger('ProductService');
 
   async createProduct(
     dto: ProductCreateDto,

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -17,6 +17,8 @@ export class ReviewService {
     private productModel: Model<Product>,
     private readonly fileService: FilesService,
   ) {}
+
+  private readonly logger: Logger = new Logger('ReviewService');
 
   async createReview(
     createReviewDto: CreateReviewDto,
@@ -48,9 +50,17 @@ export class ReviewService {
       await this.updateProductRating(createReviewDto.productId, _id);
     } catch (error) {
       if (error instanceof Error) {
-        throw new Error(`Failed to create product: ${error.message}`);
+        this.logger.error(
+          `Failed to create review: ${error.message}`,
+          error.stack,
+        );
+        throw new Error(`Failed to create review: ${error.message}`);
       }
-      throw new Error('Failed to create product');
+      this.logger.error(
+        `Failed to create review: ${error.message}`,
+        error.stack,
+      );
+      throw new Error('Failed to create review');
     }
   }
 
@@ -58,27 +68,44 @@ export class ReviewService {
     productId: string,
     reviewId,
   ): Promise<void> {
-    const product = await this.productModel.findById(productId);
-    if (!product) {
-      throw new Error('Product not found');
-    }
-    console.log(Object(productId));
-    const reviews = await this.reviewModel.find({
-      productId: new Types.ObjectId(productId),
-    });
-    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-    const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+    try {
+      const product = await this.productModel.findById(productId);
+      if (!product) {
+        throw new Error('Product not found');
+      }
 
-    await this.parentProductModel.findByIdAndUpdate(product.parentProductId, {
-      averageRating,
-      reviewCount: reviews.length,
-      $push: { reviews: reviewId },
-    });
+      const reviews = await this.reviewModel.find({
+        productId: new Types.ObjectId(productId),
+      });
+      const totalRating = reviews.reduce(
+        (sum, review) => sum + review.rating,
+        0,
+      );
+      const averageRating =
+        reviews.length > 0 ? totalRating / reviews.length : 0;
+
+      await this.parentProductModel.findByIdAndUpdate(product.parentProductId, {
+        averageRating,
+        reviewCount: reviews.length,
+        $push: { reviews: reviewId },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to update review: ${error.message}`,
+        error.stack,
+      );
+      throw new Error('Failed to update review');
+    }
   }
 
   async getProductReviews(productId: string): Promise<Review[]> {
-    return this.reviewModel
-      .find({ product: productId })
-      .populate('user', 'nickName');
+    try {
+      return this.reviewModel
+        .find({ product: productId })
+        .populate('user', 'nickName');
+    } catch (error) {
+      this.logger.error(`Failed to get reviews: ${error.message}`, error.stack);
+      throw new Error('Failed to get reviews');
+    }
   }
 }
