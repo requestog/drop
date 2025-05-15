@@ -29,7 +29,7 @@ export class AuthService {
     private cartService: CartService,
   ) {}
 
-  private readonly logger: Logger = new Logger('OrderAuthService');
+  private readonly logger: Logger = new Logger('AuthService');
 
   async login(
     loginDto: LoginDto,
