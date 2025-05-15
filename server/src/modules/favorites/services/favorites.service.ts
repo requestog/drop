@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -20,13 +21,19 @@ export class FavoritesService {
     private readonly favoriteItemModel: Model<FavoriteItem>,
   ) {}
 
+  private readonly logger: Logger = new Logger('FavoritesService');
+
   async createFavorites(id: Types.ObjectId): Promise<void> {
     try {
       const product = new this.favoritesModel({
         user: id,
       });
       await product.save();
-    } catch {
+    } catch (error) {
+      this.logger.error(
+        `Failed to create Favorites: ${error.message}`,
+        error.stack,
+      );
       throw new InternalServerErrorException('Failed to create Favorites');
     }
   }
@@ -61,6 +68,10 @@ export class FavoritesService {
       ) {
         throw error;
       }
+      this.logger.error(
+        `Failed to add product to favorites: ${error.message}`,
+        error.stack,
+      );
       throw new InternalServerErrorException(
         'Failed to add product to favorites',
       );
@@ -70,7 +81,11 @@ export class FavoritesService {
   async getFavorites(id: string): Promise<Favorites | null> {
     try {
       return await this.favoritesModel.findById(new Types.ObjectId(id));
-    } catch {
+    } catch (error) {
+      this.logger.error(
+        `Failed to get favorites: ${error.message}`,
+        error.stack,
+      );
       throw new InternalServerErrorException('Failed to get favorites');
     }
   }
@@ -92,7 +107,11 @@ export class FavoritesService {
 
       favorites.items.splice(itemIndex, 1);
       await favorites.save();
-    } catch {
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete a favorite: ${error.message}`,
+        error.stack,
+      );
       throw new InternalServerErrorException('Failed to delete a favorite');
     }
   }
