@@ -3,6 +3,7 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { Product } from '../models/product.model';
 import { ProductCreateDto } from '../dto/product-create.dto';
@@ -25,6 +26,8 @@ export class ProductsService {
     @InjectModel(ProductSizes.name)
     private readonly productSizeModel: Model<ProductSizes>,
   ) {}
+
+  private readonly logger: Logger = new Logger('FavoritesService');
 
   async createProduct(
     dto: ProductCreateDto,
@@ -55,8 +58,16 @@ export class ProductsService {
       });
     } catch (error) {
       if (error instanceof Error) {
+        this.logger.error(
+          `Failed to create product: ${error.message}`,
+          error.stack,
+        );
         throw new Error(`Failed to create product: ${error.message}`);
       }
+      this.logger.error(
+        `Failed to create product: ${error.message}`,
+        error.stack,
+      );
       throw new Error('Failed to create product');
     }
   }
@@ -65,6 +76,10 @@ export class ProductsService {
     try {
       return this.productModel.find({});
     } catch (error) {
+      this.logger.error(
+        `Failed to get products: ${error.message}`,
+        error.stack,
+      );
       return Promise.reject(error);
     }
   }
@@ -95,10 +110,8 @@ export class ProductsService {
         })
         .populate('sizes', 'size count -_id');
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Ошибка при получении продукта',
-        error,
-      );
+      this.logger.error(`Failed to get product: ${error.message}`, error.stack);
+      throw new InternalServerErrorException('Failed to get product', error);
     }
   }
 
@@ -115,7 +128,11 @@ export class ProductsService {
         { _id: product.parentProductId },
         { $pull: { products: objectId } },
       );
-    } catch {
+    } catch (error) {
+      this.logger.error(
+        `Error deleting product: ${error.message}`,
+        error.stack,
+      );
       throw new HttpException('Error deleting product', HttpStatus.BAD_REQUEST);
     }
   }
@@ -292,7 +309,11 @@ export class ProductsService {
       }
 
       await this.productModel.findByIdAndUpdate(id, updateData, { new: true });
-    } catch {
+    } catch (error) {
+      this.logger.error(
+        `Error updating product: ${error.message}`,
+        error.stack,
+      );
       throw new HttpException('Error updating product', HttpStatus.BAD_REQUEST);
     }
   }
