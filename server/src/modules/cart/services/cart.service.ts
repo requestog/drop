@@ -1,6 +1,7 @@
 import {
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -18,11 +19,14 @@ export class CartService {
     @InjectModel(CartItem.name) private readonly cartItemModel: Model<CartItem>,
   ) {}
 
+  private readonly logger: Logger = new Logger('CartService');
+
   async createCart(id: Types.ObjectId): Promise<void> {
     try {
       const cart = new this.cartsModel({ user: id });
       await cart.save();
-    } catch {
+    } catch (error) {
+      this.logger.error(`Failed to create cart: ${error.message}`, error.stack);
       throw new InternalServerErrorException('Failed to create cart');
     }
   }
@@ -50,7 +54,8 @@ export class CartService {
 
       cart.items.push(cartItem);
       await cart.save();
-    } catch {
+    } catch (error) {
+      this.logger.error(`Failed to add cart: ${error.message}`, error.stack);
       throw new InternalServerErrorException('Failed to add cart');
     }
   }
@@ -61,7 +66,8 @@ export class CartService {
         .findById(new Types.ObjectId(id))
         .exec();
       return cart ? cart : null;
-    } catch {
+    } catch (error) {
+      this.logger.error(`Failed to get cart: ${error.message}`, error.stack);
       throw new InternalServerErrorException('Failed to get cart');
     }
   }
@@ -84,7 +90,8 @@ export class CartService {
 
       cart.items.splice(itemIndex, 1);
       await cart.save();
-    } catch {
+    } catch (error) {
+      this.logger.error(`Failed to delete cart: ${error.message}`, error.stack);
       throw new InternalServerErrorException('Failed to delete cart');
     }
   }
@@ -104,7 +111,8 @@ export class CartService {
 
       cart.items[itemIndex].quantity = dto.quantity;
       cart.save();
-    } catch {
+    } catch (error) {
+      this.logger.error(`Failed to update cart: ${error.message}`, error.stack);
       throw new InternalServerErrorException('Failed to update cart');
     }
   }
