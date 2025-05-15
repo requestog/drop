@@ -2,6 +2,8 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ParentProduct } from '../models/parent-product.model';
@@ -21,11 +23,21 @@ export class ParentProductService {
     private readonly reviewModel: Model<Review>,
   ) {}
 
+  private readonly logger: Logger = new Logger('ParentProductService');
+
   async createParentProduct(dto: ParentProductCreateDto): Promise<void> {
-    await this.parentProductModel.create({
-      ...dto,
-      brand: new Types.ObjectId(dto.brand),
-    });
+    try {
+      await this.parentProductModel.create({
+        ...dto,
+        brand: new Types.ObjectId(dto.brand),
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to create Favorites: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException('Failed to create Parent Product');
+    }
   }
 
   async deleteParentProduct(id: string): Promise<void> {
@@ -41,7 +53,11 @@ export class ParentProductService {
           await this.productService.deleteProduct(String(product._id));
         }
       }
-    } catch {
+    } catch (error) {
+      this.logger.error(
+        `Error deleting parent product: ${error.message}`,
+        error.stack,
+      );
       throw new HttpException(
         'Error deleting parent product',
         HttpStatus.BAD_REQUEST,
