@@ -46,7 +46,10 @@ export class AuthService {
       );
     } catch (error) {
       this.logger.error(`Failed to login: ${error.message}`, error.stack);
-      throw new InternalServerErrorException('Error login');
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Login failed');
     }
   }
 
@@ -56,7 +59,7 @@ export class AuthService {
     ipAddress?: string,
   ): Promise<AuthTokens | undefined> {
     try {
-      const candidate: User | null = await this.userService.getUserByEmail(
+      const candidate: User | null = await this.userService.getUser(
         loginDto.email,
       );
       if (candidate) {
@@ -112,8 +115,7 @@ export class AuthService {
       );
 
       const userEmail: string = payload.email;
-      const user: User | null =
-        await this.userService.getUserByEmail(userEmail);
+      const user: User | null = await this.userService.getUser(userEmail);
 
       if (!user) {
         await this.tokenService.removeSession(session.id);
@@ -141,9 +143,7 @@ export class AuthService {
   }
 
   private async validateUserCredentials(loginDto: LoginDto): Promise<SafeUser> {
-    const user: User | null = await this.userService.getUserByEmail(
-      loginDto.email,
-    );
+    const user: User | null = await this.userService.getUser(loginDto.email);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');

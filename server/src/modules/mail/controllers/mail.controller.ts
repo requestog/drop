@@ -49,7 +49,7 @@ export class MailController {
     @Param('confirmationToken') confirmationToken: string,
     @Res() res: Response,
   ): Promise<void> {
-    await this.usersService.confirmEmailByToken(confirmationToken);
+    await this.usersService.confirmEmail(confirmationToken);
     res.redirect(`${this.configService.get<string>('CLIENT_URL')}`);
   }
 }

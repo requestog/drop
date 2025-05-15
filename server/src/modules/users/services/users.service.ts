@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../models/user.model';
@@ -12,6 +16,8 @@ export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
+
+  private readonly logger: Logger = new Logger('UserService');
 
   async createUser(
     userDto: CreateUserDto,
@@ -35,7 +41,11 @@ export class UsersService {
 
       return this.toSafeUser(savedUser);
     } catch (error) {
-      return Promise.reject(error);
+      this.logger.error(
+        `Failed to create review: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException('Failed to create user');
     }
   }
 
@@ -49,30 +59,47 @@ export class UsersService {
   }
 
   async getAllUsers(): Promise<User[]> {
-    const data = await this.userModel
-      .find()
-      .select('-passwordHash -confirmationToken -confirmationExpires')
-      .exec();
-    return data;
+    try {
+      const data = await this.userModel
+        .find()
+        .select('-passwordHash -confirmationToken -confirmationExpires')
+        .exec();
+      return data;
+    } catch (error) {
+      this.logger.error(`Failed to get users: ${error.message}`, error.stack);
+      throw new InternalServerErrorException('Failed to get users');
+    }
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    const user = await this.userModel.findOne({ email }).lean().exec();
-    return user;
+  async getUser(email: string): Promise<User | null> {
+    try {
+      const user = await this.userModel.findOne({ email }).lean().exec();
+      return user;
+    } catch (error) {
+      this.logger.error(`Failed to get user: ${error.message}`, error.stack);
+      throw new InternalServerErrorException('Failed to get user');
+    }
   }
 
-  async confirmEmailByToken(confirmationToken: string): Promise<void> {
-    const updatedUser = await this.userModel
-      .findOneAndUpdate(
-        { confirmationToken },
-        { $set: { emailVerified: true } },
-        { new: true },
-      )
-      .exec();
+  async confirmEmail(confirmationToken: string): Promise<void> {
+    try {
+      const updatedUser = await this.userModel
+        .findOneAndUpdate(
+          { confirmationToken },
+          { $set: { emailVerified: true } },
+          { new: true },
+        )
+        .exec();
 
-    if (!updatedUser) {
-      console.log('Incorrect activation link');
-      throw new Error('Incorrect activation link');
+      if (!updatedUser) {
+        throw new Error('Incorrect activation link');
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to confirm email: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException('Failed to confirm email');
     }
   }
 
