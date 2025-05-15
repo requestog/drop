@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailerService } from '@nestjs-modules/mailer';
 
@@ -8,6 +8,8 @@ export class MailService {
     private readonly mailService: MailerService,
     private readonly configService: ConfigService,
   ) {}
+
+  private readonly logger: Logger = new Logger('MailService');
 
   async sendUserConfirmation(
     email: string,
@@ -26,7 +28,7 @@ export class MailService {
         },
       });
     } catch (error) {
-      console.log('Invalid email service: \n', error);
+      this.logger.error(`Invalid email service: ${error.message}`, error.stack);
     }
   }
 }
