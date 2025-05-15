@@ -4,6 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { UsersService } from '../../users/services/users.service';
 import { User } from '../../users/models/user.model';
@@ -28,18 +29,25 @@ export class AuthService {
     private cartService: CartService,
   ) {}
 
+  private readonly logger: Logger = new Logger('OrderAuthService');
+
   async login(
     loginDto: LoginDto,
     userAgent?: string,
     ipAddress?: string,
   ): Promise<AuthTokens> {
-    const user: SafeUser = await this.validateUserCredentials(loginDto);
-    console.log(user);
-    return this.tokenService.issueTokensAndSaveSession(
-      user,
-      userAgent,
-      ipAddress,
-    );
+    try {
+      const user: SafeUser = await this.validateUserCredentials(loginDto);
+      console.log(user);
+      return this.tokenService.issueTokensAndSaveSession(
+        user,
+        userAgent,
+        ipAddress,
+      );
+    } catch (error) {
+      this.logger.error(`Failed to login: ${error.message}`, error.stack);
+      throw new InternalServerErrorException('Error login');
+    }
   }
 
   async registration(
@@ -47,42 +55,50 @@ export class AuthService {
     userAgent?: string,
     ipAddress?: string,
   ): Promise<AuthTokens> {
-    const candidate: User | null = await this.userService.getUserByEmail(
-      loginDto.email,
-    );
-    if (candidate) {
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
-    }
-
-    const confirmationToken: string = uuidv4();
-    const confirmationExpires = new Date();
-    confirmationExpires.setHours(confirmationExpires.getHours() + 24);
-
-    const createdUser: SafeUser = await this.userService.createUser(
-      loginDto,
-      confirmationToken,
-      confirmationExpires,
-    );
-
-    if (!createdUser || !createdUser._id) {
-      throw new InternalServerErrorException(
-        'Failed to create user or user missing ID.',
+    try {
+      const candidate: User | null = await this.userService.getUserByEmail(
+        loginDto.email,
       );
+      if (candidate) {
+        throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+      }
+
+      const confirmationToken: string = uuidv4();
+      const confirmationExpires = new Date();
+      confirmationExpires.setHours(confirmationExpires.getHours() + 24);
+
+      const createdUser: SafeUser = await this.userService.createUser(
+        loginDto,
+        confirmationToken,
+        confirmationExpires,
+      );
+
+      if (!createdUser || !createdUser._id) {
+        throw new InternalServerErrorException(
+          'Failed to create user or user missing ID.',
+        );
+      }
+
+      await this.favoritesService.createFavorites(createdUser._id);
+      await this.cartService.createCart(createdUser._id);
+
+      await this.mailService.sendUserConfirmation(
+        loginDto.email,
+        confirmationToken,
+      );
+
+      return this.tokenService.issueTokensAndSaveSession(
+        createdUser['_doc'],
+        userAgent,
+        ipAddress,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to registration: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException('Error registration');
     }
-
-    await this.favoritesService.createFavorites(createdUser._id);
-    await this.cartService.createCart(createdUser._id);
-
-    await this.mailService.sendUserConfirmation(
-      loginDto.email,
-      confirmationToken,
-    );
-    
-    return this.tokenService.issueTokensAndSaveSession(
-      createdUser['_doc'],
-      userAgent,
-      ipAddress,
-    );
   }
 
   async refreshToken(
@@ -116,7 +132,10 @@ export class AuthService {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      console.error('Error during token refresh:', error);
+      this.logger.error(
+        `Error during token refresh:: ${error.message}`,
+        error.stack,
+      );
       throw new InternalServerErrorException('Could not refresh token.');
     }
   }
