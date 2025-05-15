@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as uuid from 'uuid';
@@ -12,6 +12,8 @@ export type FileDestination =
 
 @Injectable()
 export class FilesService {
+  private readonly logger: Logger = new Logger('FileService');
+
   async saveFile(
     image: Express.Multer.File,
     destination: FileDestination = 'products',
@@ -30,6 +32,10 @@ export class FilesService {
       fs.writeFileSync(path.join(filePath, fileName), image.buffer);
       return `${destination}/${fileName}`;
     } catch (error) {
+      this.logger.error(
+        `An error occurred while writing the file: ${error.message}`,
+        error.stack,
+      );
       throw new HttpException(
         `An error occurred while writing the file, 
           ${error.message}`,
@@ -71,6 +77,10 @@ export class FilesService {
         console.warn(`File not found: ${filePath}`);
       }
     } catch (error) {
+      this.logger.error(
+        `An error occurred while deleting the file: ${error.message}`,
+        error.stack,
+      );
       throw new HttpException(
         `An error occurred while deleting the file: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
