@@ -39,22 +39,6 @@ export class User extends Document implements IUser {
   name?: string;
 
   @ApiProperty({
-    example: 'Иванов',
-    description: 'Фамилия пользователя',
-    required: false,
-  })
-  @Prop({ type: String, trim: true })
-  surname?: string;
-
-  @ApiProperty({
-    example: 'Иванович',
-    description: 'Отчество пользователя',
-    required: false,
-  })
-  @Prop({ type: String, trim: true })
-  patronymic?: string;
-
-  @ApiProperty({
     example: [Role.User],
     description: 'Роли пользователя',
     enum: Role,
@@ -71,14 +55,6 @@ export class User extends Document implements IUser {
   })
   @Prop({ type: String, trim: true })
   phone?: string;
-
-  @ApiProperty({
-    example: 'https://example.com/avatar.jpg',
-    description: 'URL аватара',
-    required: false,
-  })
-  @Prop({ type: String })
-  avatarUrl?: string;
 
   @ApiProperty({
     example: false,

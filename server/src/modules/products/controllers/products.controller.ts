@@ -14,7 +14,6 @@ import { ProductsService } from '../services/products.service';
 import { ProductCreateDto } from '../dto/product-create.dto';
 import { Product } from '../models/product.model';
 import { SearchProductsDto } from '../dto/search-products.dto';
-import PaginatedProducts from '../interfaces/paginated-products.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { plainToClass } from 'class-transformer';
 import { ProductUpdateDto } from '../dto/product-update.dto';

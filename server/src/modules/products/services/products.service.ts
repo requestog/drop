@@ -10,7 +10,7 @@ import { ProductCreateDto } from '../dto/product-create.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { SearchProductsDto } from '../dto/search-products.dto';
-import PaginatedProducts from '../interfaces/paginated-products.dto';
+import PaginatedProducts from '../interfaces/paginated-products.interface';
 import { FilesService } from '../../files/files.service';
 import { ParentProduct } from '../../parent-product/models/parent-product.model';
 import { ProductSizes } from '../../product-sizes/models/product-sizes.model';

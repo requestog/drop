@@ -3,12 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as uuid from 'uuid';
 
-export type FileDestination =
-  | 'products'
-  | 'reviews'
-  | 'users'
-  | 'brands'
-  | 'banners';
+export type FileDestination = 'products' | 'reviews' | 'brands' | 'banners';
 
 @Injectable()
 export class FilesService {
@@ -55,7 +50,6 @@ export class FilesService {
       const validDestinations: FileDestination[] = [
         'products',
         'reviews',
-        'users',
         'brands',
         'banners',
       ];
