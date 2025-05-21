@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../models/user.model';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { Role } from '../enums/role.enum';
+import { Role } from '../../../common/interfaces/role.interface';
 import * as bcrypt from 'bcrypt';
 import { SafeUser } from '../types/user.types';
 
@@ -30,7 +30,7 @@ export class UsersService {
       const newUser: User = new this.userModel({
         ...userDto,
         passwordHash: hashedPassword,
-        roles: [Role.User],
+        roles: [Role.CUSTOMER],
         emailVerified: false,
         confirmationToken: confirmationTokenParam,
         confirmationExpires: confirmationExpiresParam,

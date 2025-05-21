@@ -16,10 +16,18 @@ import { CategoryModule } from './modules/category/category.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
+import { ProfileModule } from './modules/profile/profile.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
   imports: [
     ServeStaticModule.forRoot({
       rootPath: path.resolve(__dirname, 'static'),
@@ -42,6 +50,7 @@ import { OrderModule } from './modules/order/order.module';
     CartModule,
     OrderModule,
     ConfigModule,
+    ProfileModule,
   ],
 })
 export class AppModule {}

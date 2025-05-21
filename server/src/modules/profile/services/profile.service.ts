@@ -49,7 +49,7 @@ export class ProfileService {
     }
   }
 
-  async update(dto: ProfileDto, id: string) {
+  async update(dto: ProfileDto, id: string): Promise<void> {
     try {
       const profile = await this.userModel.findById(id).exec();
       if (!profile) {

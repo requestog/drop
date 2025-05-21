@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import { User } from '../models/user.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '../enums/role.enum';
+import { Role } from '../../../common/interfaces/role.interface';
 
 export class SafeUser {
   @ApiProperty({ type: String, description: 'ID пользователя' })

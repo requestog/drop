@@ -24,6 +24,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Brand } from '../models/brand.model';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { Role } from '../../../common/interfaces/role.interface';
+import { RolesGuard } from '../../../common/guards/roles.guard';
 
 @ApiTags('Brands')
 @Controller('brands')
@@ -31,7 +34,8 @@ export class BrandsController {
   constructor(private readonly brandService: BrandsService) {}
 
   @Post('/create')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({ summary: 'Создание нового бренда' })
   @ApiBearerAuth('access-token')

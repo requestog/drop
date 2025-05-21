@@ -1,4 +1,4 @@
-import { Role } from '../enums/role.enum';
+import { Role } from '../../../common/interfaces/role.interface';
 import { Document } from 'mongoose';
 
 export interface IUser extends Document {

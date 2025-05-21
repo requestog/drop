@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Role } from '../enums/role.enum';
+import { Role } from '../../../common/interfaces/role.interface';
 import { IUser } from '../interfaces/user.interface';
 import { Document } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
@@ -39,13 +39,18 @@ export class User extends Document implements IUser {
   name?: string;
 
   @ApiProperty({
-    example: [Role.User],
+    example: [Role.CUSTOMER],
     description: 'Роли пользователя',
     enum: Role,
-    default: [Role.User],
+    default: [Role.CUSTOMER],
     required: true,
   })
-  @Prop({ type: [String], enum: Role, default: [Role.User], required: true })
+  @Prop({
+    type: [String],
+    enum: Role,
+    default: [Role.CUSTOMER],
+    required: true,
+  })
   roles: Role[];
 
   @ApiProperty({

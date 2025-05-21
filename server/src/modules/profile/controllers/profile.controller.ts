@@ -21,6 +21,8 @@ export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get('/get/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Получить профиль пользователя' })
   @ApiParam({
     name: 'id',
@@ -33,6 +35,7 @@ export class ProfileController {
     type: ProfileResponseDto,
   })
   @ApiNotFoundResponse({ description: 'Профиль не найден' })
+  @ApiUnauthorizedResponse({ description: 'Не авторизован' })
   @ApiBadRequestResponse({ description: 'Невалидный ID пользователя' })
   async get(@Param('id') id: string): Promise<ProfileResponseDto> {
     return await this.profileService.get(id);
@@ -40,7 +43,7 @@ export class ProfileController {
 
   @Patch('/update/:id')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth() // Требуется JWT токен
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Обновить профиль пользователя' })
   @ApiParam({
     name: 'id',
