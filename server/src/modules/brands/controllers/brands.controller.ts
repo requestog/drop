@@ -66,7 +66,8 @@ export class BrandsController {
   }
 
   @Patch('update/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({ summary: 'Обновление информации о бренде' })
   @ApiBearerAuth('access-token')
@@ -102,7 +103,8 @@ export class BrandsController {
   }
 
   @Delete('delete/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Удаление бренда по ID' })
   @ApiBearerAuth('access-token')
   @ApiParam({

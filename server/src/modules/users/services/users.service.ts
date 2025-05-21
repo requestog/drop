@@ -1,4 +1,6 @@
 import {
+  HttpException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -10,6 +12,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { Role } from '../../../common/interfaces/role.interface';
 import * as bcrypt from 'bcrypt';
 import { SafeUser } from '../types/user.types';
+import { AddRoleDto } from '../dto/add-role.dto';
 
 @Injectable()
 export class UsersService {
@@ -117,5 +120,20 @@ export class UsersService {
       ...safeData,
       _id: user._id,
     } as SafeUser;
+  }
+
+  async addRole(dto: AddRoleDto): Promise<void> {
+    try {
+      const user = await this.userModel.findById(dto.user);
+      if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+
+      user.roles.push(dto.role);
+      await user.save();
+    } catch (error) {
+      this.logger.error(`Failed to add role: ${error.message}`);
+      throw new InternalServerErrorException('Failed to add role');
+    }
   }
 }
