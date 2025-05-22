@@ -21,6 +21,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ProductSizes } from '../models/product-sizes.model';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { Role } from '../../../common/interfaces/role.interface';
 
 @ApiTags('Product Sizes')
 @Controller('product-sizes')
@@ -28,8 +31,14 @@ export class ProductSizesController {
   constructor(private readonly productSizesService: ProductSizesService) {}
 
   @Post('/create')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Создание нового размера продукта' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: 'Создание нового размера продукта',
+    description:
+      'Добавление нового варианта размера для товаров.' +
+      ' Доступно только администраторам. Требует указания размера и связанных параметров.',
+  })
   @ApiBearerAuth('access-token')
   @ApiBody({ type: ProductSizesCreateDto })
   @ApiCreatedResponse({
@@ -41,8 +50,14 @@ export class ProductSizesController {
   }
 
   @Delete('/delete/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Удаление размера продукта по ID' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: 'Удаление размера продукта по ID',
+    description:
+      'Удаление конкретного размера товара' +
+      ' из системы по его идентификатору. Доступно только администраторам.',
+  })
   @ApiBearerAuth('access-token')
   @ApiParam({
     name: 'id',
@@ -55,8 +70,14 @@ export class ProductSizesController {
   }
 
   @Patch('/update/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Обновление информации о размере продукта' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: 'Обновление информации о размере продукта',
+    description:
+      'Изменение параметров существующего размера товара.' +
+      ' Доступно только администраторам. Позволяет обновить все характеристики размера.',
+  })
   @ApiBearerAuth('access-token')
   @ApiParam({
     name: 'id',

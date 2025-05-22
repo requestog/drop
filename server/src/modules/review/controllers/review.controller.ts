@@ -23,6 +23,9 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { Role } from '../../../common/interfaces/role.interface';
 
 @ApiTags('Product Reviews')
 @Controller('products/reviews')
@@ -30,9 +33,16 @@ export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   @Post('/create')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
   @UseInterceptors(FilesInterceptor('images'))
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Создание нового отзыва к продукту' })
+  @ApiOperation({
+    summary: 'Создание отзыва о продукте',
+    description:
+      'Добавление нового отзыва с возможностью прикрепления изображений.' +
+      ' Доступно только авторизованным пользователям с ролью CUSTOMER.',
+  })
   @ApiBearerAuth('access-token')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -68,7 +78,14 @@ export class ReviewController {
   }
 
   @Get('/get/:productId')
-  @ApiOperation({ summary: 'Получение отзывов по ID продукта' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Получение отзывов продукта',
+    description:
+      'Получение списка всех отзывов по указанному ID продукта.' +
+      ' Доступно только авторизованным пользователям с ролью CUSTOMER.',
+  })
   @ApiParam({ name: 'productId', type: 'string', description: 'ID продукта' })
   @ApiOkResponse({
     description: 'Список отзывов к продукту',

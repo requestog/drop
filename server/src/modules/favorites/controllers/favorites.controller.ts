@@ -20,6 +20,9 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { FavoritesCreateDto } from '../dto/favorites-create.dto';
 import { FavoritesDeleteDto } from '../dto/favorites-delete.dto';
 import { Favorites } from '../models/favorites';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { Role } from '../../../common/interfaces/role.interface';
 
 @ApiTags('Favorites')
 @ApiBearerAuth()
@@ -28,8 +31,13 @@ export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Post('/add')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Добавить товар в избранное' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Добавить товар в избранное',
+    description:
+      'Добавление товара в список избранного пользователя. Требует ID товара и пользователя.',
+  })
   @ApiResponse({
     status: 201,
     description: 'Товар успешно добавлен в избранное',
@@ -48,8 +56,13 @@ export class FavoritesController {
   }
 
   @Delete('delete/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Удалить товар из избранного' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Удалить товар из избранного',
+    description:
+      'Удаление конкретного товара из списка избранного по ID пользователя и товара.',
+  })
   @ApiParam({
     name: 'id',
     description: 'ID пользователя',
@@ -72,8 +85,13 @@ export class FavoritesController {
   }
 
   @Get('/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Получить избранное пользователя' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Получить избранное пользователя',
+    description:
+      'Получение полного списка избранных товаров пользователя по его ID.',
+  })
   @ApiParam({
     name: 'id',
     description: 'ID пользователя',

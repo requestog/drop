@@ -19,6 +19,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ParentProduct } from '../models/parent-product.model';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { Role } from '../../../common/interfaces/role.interface';
 
 @ApiTags('Parent Product')
 @Controller('parent-product')
@@ -26,8 +29,14 @@ export class ParentProductController {
   constructor(private readonly parentProductService: ParentProductService) {}
 
   @Post('/create')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Создание новой родительской категории продукта' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: 'Создание новой родительской категории продукта',
+    description:
+      'Создание новой родительской категории для продуктов.' +
+      ' Доступно только администраторам. Требует названия и описания категории.',
+  })
   @ApiBearerAuth('access-token')
   @ApiBody({ type: ParentProductCreateDto })
   @ApiCreatedResponse({
@@ -41,8 +50,14 @@ export class ParentProductController {
   }
 
   @Delete('/delete/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Удаление родительской категории продукта по ID' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: 'Удаление родительской категории продукта по ID',
+    description:
+      'Удаление родительской категории продуктов по её идентификатору.' +
+      ' Доступно только администраторам. Удаляет категорию и все связанные с ней продукты.',
+  })
   @ApiBearerAuth('access-token')
   @ApiParam({
     name: 'id',

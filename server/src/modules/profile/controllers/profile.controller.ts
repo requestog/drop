@@ -14,6 +14,9 @@ import { ProfileService } from '../services/profile.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ProfileDto } from '../dto/profile.dto';
 import { ProfileResponseDto } from '../dto/profile-response.dto';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { Role } from '../../../common/interfaces/role.interface';
 
 @ApiTags('Profile')
 @Controller('profile')
@@ -21,9 +24,15 @@ export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get('/get/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Получить профиль пользователя' })
+  @ApiOperation({
+    summary: 'Получение профиля пользователя',
+    description:
+      'Получение данных профиля по ID пользователя.' +
+      ' Доступно только авторизованным пользователям с ролью CUSTOMER.',
+  })
   @ApiParam({
     name: 'id',
     description: 'ID пользователя',
@@ -42,9 +51,16 @@ export class ProfileController {
   }
 
   @Patch('/update/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Обновить профиль пользователя' })
+  @ApiOperation({
+    summary: 'Обновление профиля пользователя',
+    description:
+      'Изменение данных профиля по ID пользователя.' +
+      ' Доступно только авторизованным пользователям с ролью CUSTOMER.' +
+      ' Принимает новые данные профиля.',
+  })
   @ApiParam({
     name: 'id',
     description: 'ID пользователя',

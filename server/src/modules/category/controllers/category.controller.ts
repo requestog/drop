@@ -20,6 +20,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Category } from '../models/category.model';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { Role } from '../../../common/interfaces/role.interface';
 
 @ApiTags('Categories')
 @Controller('category')
@@ -27,8 +30,13 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post('/create')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Создание новой категории' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: 'Создание новой категории',
+    description:
+      'Создание новой категории товаров. Доступно только администраторам.',
+  })
   @ApiBearerAuth('access-token')
   @ApiBody({ type: CategoryCreateDto })
   @ApiCreatedResponse({
@@ -40,8 +48,13 @@ export class CategoryController {
   }
 
   @Delete('/delete/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Удаление категории по ID' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: 'Удаление категории по ID',
+    description:
+      'Полное удаление категории по её идентификатору. Доступно только администраторам.',
+  })
   @ApiBearerAuth('access-token')
   @ApiParam({
     name: 'id',
@@ -54,15 +67,20 @@ export class CategoryController {
   }
 
   @Patch('/update/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Обновление информации о категории' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: 'Обновление информации о категории',
+    description:
+      'Изменение данных существующей категории (название, описание и др.). Доступно только администраторам.',
+  })
   @ApiBearerAuth('access-token')
   @ApiParam({
     name: 'id',
     type: 'string',
     description: 'ID категории для обновления',
   })
-  @ApiBody({ type: CategoryCreateDto }) // Используем CategoryCreateDto для обновления (может потребоваться отдельный UpdateDto)
+  @ApiBody({ type: CategoryCreateDto })
   @ApiOkResponse({ description: 'Информация о категории успешно обновлена' })
   async updateCategory(
     @Param('id') id: string,

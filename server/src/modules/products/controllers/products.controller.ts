@@ -29,6 +29,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PaginatedProductsResponseDto } from '../dto/paginated-products-response.dto';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { Role } from '../../../common/interfaces/role.interface';
 
 @ApiTags('Products')
 @Controller('products')
@@ -36,9 +39,16 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post('/create')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @UseInterceptors(FilesInterceptor('images'))
-  @ApiOperation({ summary: 'Создание нового продукта' })
+  @ApiOperation({
+    summary: 'Создание нового продукта',
+    description:
+      'Добавление нового товара в каталог.' +
+      ' Доступно только администраторам.' +
+      ' Требует основных данных о продукте и загрузки изображений.',
+  })
   @ApiBearerAuth('access-token')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -78,7 +88,14 @@ export class ProductsController {
   }
 
   @Post('search')
-  @ApiOperation({ summary: 'Поиск продуктов с фильтрацией и пагинацией' })
+  @UseGuards(RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Поиск продуктов с фильтрацией и пагинацией',
+    description:
+      'Поиск товаров по различным критериям' +
+      ' с возможностью фильтрации и постраничной загрузки.',
+  })
   @ApiBody({ type: SearchProductsDto })
   @ApiOkResponse({
     description: 'Список найденных продуктов с метаданными пагинации',
@@ -91,7 +108,12 @@ export class ProductsController {
   }
 
   @Get('/getAll')
-  @ApiOperation({ summary: 'Получение всех продуктов' })
+  @UseGuards(RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Получение всех продуктов',
+    description: 'Получение полного списка товаров из каталога.',
+  })
   @ApiOkResponse({
     description: 'Список всех продуктов',
     type: [Product],
@@ -101,7 +123,13 @@ export class ProductsController {
   }
 
   @Get('/:id')
-  @ApiOperation({ summary: 'Получение продукта по ID' })
+  @UseGuards(RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Получение продукта по ID',
+    description:
+      'Получение детальной информации о конкретном товаре по его идентификатору.',
+  })
   @ApiParam({ name: 'id', type: 'string', description: 'ID продукта' })
   @ApiOkResponse({
     description: 'Найденный продукт',
@@ -112,8 +140,14 @@ export class ProductsController {
   }
 
   @Delete('delete/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Удаление продукта по ID' })
+  @ApiOperation({
+    summary: 'Удаление продукта по ID',
+    description:
+      'Полное удаление товара из системы по его идентификатору. Доступно только администраторам.',
+  })
   @ApiBearerAuth('access-token')
   @ApiParam({
     name: 'id',
@@ -126,9 +160,17 @@ export class ProductsController {
   }
 
   @Patch('/update/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FilesInterceptor('images'))
-  @ApiOperation({ summary: 'Обновление информации о продукте' })
+  @ApiOperation({
+    summary: 'Обновление информации о продукте',
+    description:
+      'Изменение данных существующего товара,' +
+      ' включая обновление изображений.' +
+      ' Доступно только администраторам.',
+  })
   @ApiBearerAuth('access-token')
   @ApiConsumes('multipart/form-data')
   @ApiParam({

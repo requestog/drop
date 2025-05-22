@@ -12,6 +12,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CreateOrderDto } from '../dto/order-create.dto';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { Role } from '../../../common/interfaces/role.interface';
 
 @ApiTags('Orders')
 @Controller('order')
@@ -19,8 +22,13 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post('/create')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Создание нового заказа' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Создание нового заказа',
+    description:
+      'Создание нового заказа пользователем. Требует информации о товарах, количестве и данных доставки.',
+  })
   @ApiBearerAuth('access-token')
   @ApiBody({ type: CreateOrderDto })
   @ApiCreatedResponse({
@@ -32,8 +40,13 @@ export class OrderController {
   }
 
   @Get('/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Получение списка заказов пользователя по ID' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Получение списка заказов пользователя по ID',
+    description:
+      'Получение истории всех заказов пользователя по его идентификатору. Возвращает список заказов с деталями.',
+  })
   @ApiBearerAuth('access-token')
   @ApiParam({ name: 'id', type: 'string', description: 'ID пользователя' })
   @ApiOkResponse({

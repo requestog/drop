@@ -22,6 +22,9 @@ import { CartCreateDto } from '../dto/cart-create.dto';
 import { Cart } from '../models/cart.model';
 import { CartDeleteDto } from '../dto/cart-delete.dto';
 import { CartUpdateDto } from '../dto/cart-update.dto';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { Role } from '../../../common/interfaces/role.interface';
 
 @ApiTags('Cart')
 @ApiBearerAuth()
@@ -30,8 +33,13 @@ export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Post('/add')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Добавить товар в корзину' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Добавить товар в корзину',
+    description:
+      'Добавление нового товара в корзину пользователя. Требует ID товара, размера и количества.',
+  })
   @ApiResponse({
     status: 201,
     description: 'Товар успешно добавлен в корзину',
@@ -50,8 +58,13 @@ export class CartController {
   }
 
   @Get('/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Получить содержимое корзины' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Получить содержимое корзины',
+    description:
+      'Получение полного списка товаров в корзине по ID пользователя.',
+  })
   @ApiParam({
     name: 'id',
     description: 'ID пользователя',
@@ -71,8 +84,13 @@ export class CartController {
   }
 
   @Delete('/delete/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Удалить товар из корзины' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Удалить товар из корзины',
+    description:
+      'Удаление конкретного товара из корзины пользователя по ID товара и размера.',
+  })
   @ApiParam({
     name: 'id',
     description: 'ID пользователя',
@@ -95,8 +113,13 @@ export class CartController {
   }
 
   @Patch('/update/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Обновить количество товара в корзине' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.CUSTOMER)
+  @ApiOperation({
+    summary: 'Обновить количество товара в корзине',
+    description:
+      'Изменение количества выбранного товара в корзине пользователя.',
+  })
   @ApiParam({
     name: 'id',
     description: 'ID пользователя',

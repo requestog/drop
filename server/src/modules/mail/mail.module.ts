@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MailService } from './services/mail.service';
 import { MailController } from './controllers/mail.controller';
 import { MailerModule } from '@nestjs-modules/mailer';
@@ -10,7 +10,7 @@ import { UsersModule } from '../users/users.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    UsersModule,
+    forwardRef(() => UsersModule),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

@@ -1,27 +1,23 @@
 import { Controller, Get, Param, Res } from '@nestjs/common';
-import { MailService } from '../services/mail.service';
 import { UsersService } from '../../users/services/users.service';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-  ApiExcludeEndpoint,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
 @ApiTags('Mail')
 @Controller('mail')
 export class MailController {
   constructor(
-    private readonly mailService: MailService,
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
   ) {}
 
   @Get('activate/:confirmationToken')
-  @ApiOperation({ summary: 'Подтверждение email' })
+  @ApiOperation({
+    summary: 'Подтверждение email',
+    description:
+      'Активация email пользователя по токену подтверждения. После успешной активации происходит редирект на клиентскую часть.',
+  })
   @ApiParam({
     name: 'confirmationToken',
     description: 'Токен подтверждения email',
