@@ -1,5 +1,4 @@
 import { Types } from 'mongoose';
-import { User } from '../models/user.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '../../../common/interfaces/role.interface';
 

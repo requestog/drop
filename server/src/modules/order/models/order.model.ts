@@ -25,7 +25,7 @@ export class Order extends Document {
   @Prop({ type: Number, required: true })
   total: number;
 
-  @ApiProperty({ description: 'Массив элементов заказа', type: [String] }) // Указываем String, т.к. это ссылки на OrderItem
+  @ApiProperty({ description: 'Массив элементов заказа', type: [String] })
   @Prop({ type: [Types.ObjectId], ref: 'OrderItem' })
   items: OrderItem[];
 }

@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common'; // Добавляем forwardRef
+import { Module, forwardRef } from '@nestjs/common';
 import { ProductSizesController } from './controllers/product-sizes.controller';
 import { ProductSizesService } from './services/product-sizes.service';
 import { MongooseModule } from '@nestjs/mongoose';

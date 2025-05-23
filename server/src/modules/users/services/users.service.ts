@@ -10,7 +10,7 @@ import { Model } from 'mongoose';
 import { User } from '../models/user.model';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { Role } from '../../../common/interfaces/role.interface';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { SafeUser } from '../types/user.types';
 import { AddRoleDto } from '../dto/add-role.dto';
 
@@ -53,7 +53,7 @@ export class UsersService {
   }
 
   private async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, 12);
+    return bcrypt.hashSync(password, 12);
   }
 
   private async generateUniqueNickName(): Promise<string> {

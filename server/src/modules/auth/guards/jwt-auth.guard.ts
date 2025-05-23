@@ -9,7 +9,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
 
-import { ConfigService } from '@nestjs/config'; // Добавь импорт
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {

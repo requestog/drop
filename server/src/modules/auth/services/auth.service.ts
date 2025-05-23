@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../../users/services/users.service';
 import { User } from '../../users/models/user.model';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { LoginDto } from '../dto/login.dto';
 import { TokenService } from './token.service';
 import { AuthTokens } from '../interfaces/auth-tokens.interface';
@@ -149,7 +149,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isPasswordMatching: boolean = await bcrypt.compare(
+    const isPasswordMatching: boolean = bcrypt.compareSync(
       loginDto.password,
       user.passwordHash,
     );
