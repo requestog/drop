@@ -1,3 +1,5 @@
+# E-commerce API
+
 ## Quick start
 
 ```bash
