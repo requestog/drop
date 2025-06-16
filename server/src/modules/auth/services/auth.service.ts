@@ -38,7 +38,6 @@ export class AuthService {
   ): Promise<AuthTokens | undefined> {
     try {
       const user: SafeUser = await this.validateUserCredentials(loginDto);
-      console.log(user);
       return this.tokenService.issueTokensAndSaveSession(
         user,
         userAgent,
